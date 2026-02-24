@@ -92,15 +92,11 @@ Notes:
 
 4. Start backend
 
-```bash
-npm --prefix server start
-```
+  npm start
 
 5. Start frontend (in a separate terminal)
 
-```bash
-npm --prefix client run dev
-```
+  npm run dev
 
 Open `http://localhost:5173` (or the port printed by Vite) to use the app.
 
@@ -195,16 +191,10 @@ Contributions are welcome. For code changes:
 
 ---
 
-## License
-
-This project does not include a license file. Add a LICENSE if you plan to open-source it.
-
----
-
 If you want, I can also:
 
 - Add an API reference markdown file listing all endpoints with request/response examples
 - Add a quickstart script to install & run both client and server with one command
 - Update README badges, screenshots, or a short demo GIF (you can provide assets)
 
-Tell me which you'd like next.
+Tell me which you'd like next. 
