@@ -5,7 +5,6 @@ import auth from '../middlewares/auth.js';
 import { verifyTransporter } from '../utils/sendMail.js';
 
 const adminRouter=express.Router();
-
 adminRouter.post('/login',adminLogin);
 adminRouter.get('/comment', auth,getAllComments)
 adminRouter.get('/blogs',auth,getAllBlogsAdmin)
