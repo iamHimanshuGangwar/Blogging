@@ -32,6 +32,7 @@ const auth = (req, res, next) => {
             email: decoded.email,
             isAdmin: isAdmin
         };
+        req.userId = userId;  // Also set req.userId for convenience
         next();
     }
     catch (error) {
@@ -40,5 +41,7 @@ const auth = (req, res, next) => {
     }
 }
 
+const authenticateToken = auth;  // Alias for consistency
+
 export default auth;
-export { auth };
+export { auth, authenticateToken };

@@ -7,6 +7,7 @@ import {
   updateJob,
   deleteJob,
   getAllJobsAdmin,
+  createJobByEmployer,
 } from "../controllers/jobListingController.js";
 
 const router = express.Router();
@@ -14,6 +15,9 @@ const router = express.Router();
 // Public routes
 router.get("/all-jobs", getAllJobs);
 router.get("/:jobId", getJobById);
+
+// Employer routes (for Job Portal users)
+router.post("/create-employer", createJobByEmployer);
 
 // Admin routes
 router.post("/create", auth, createJob);

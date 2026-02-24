@@ -1,0 +1,607 @@
+/* ============================================ */
+/* ADAPTIVE ATMOSPHERE - Global Design System */
+/* ============================================ */
+
+:root {
+  /* CREATIVE MODE (Blog Section) */
+  --creative-primary: #9f1239;
+  --creative-primary-rgb: 159, 18, 57;
+  --creative-secondary: #db2777;
+  --creative-accent: #ec4899;
+  --creative-bg-gradient-start: #fdf2f8;
+  --creative-bg-gradient-end: #f3e8ff;
+  --creative-border-opacity: 0.05;
+  --creative-card-border: 1px solid rgba(219, 39, 119, 0.05);
+
+  /* PROFESSIONAL MODE (Career/Jobs Section) */
+  --professional-primary: #1e40af;
+  --professional-primary-rgb: 30, 64, 175;
+  --professional-secondary: #1e3a8a;
+  --professional-accent: #3b82f6;
+  --professional-bg-gradient-start: #f0f9ff;
+  --professional-bg-gradient-end: #e0f2fe;
+  --professional-border-opacity: 0.1;
+  --professional-card-border: 0.5px solid rgba(30, 64, 175, 0.1);
+
+  /* NEUTRAL TRANSITIONS */
+  --transition-duration: 800ms;
+  --transition-timing: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* CURRENT ACTIVE MODE (defaults to creative) */
+  --active-primary: var(--creative-primary);
+  --active-primary-rgb: var(--creative-primary-rgb);
+  --active-secondary: var(--creative-secondary);
+  --active-accent: var(--creative-accent);
+  --active-bg-start: var(--creative-bg-gradient-start);
+  --active-bg-end: var(--creative-bg-gradient-end);
+  --active-border: var(--creative-card-border);
+}
+
+body {
+  transition: background-color var(--transition-duration) var(--transition-timing);
+  background: linear-gradient(
+    135deg,
+    var(--active-bg-start),
+    var(--active-bg-end)
+  );
+  background-attachment: fixed;
+}
+
+/* ============================================ */
+/* ATMOSPHERE SECTIONS */
+/* ============================================ */
+
+body[data-section="creative"] {
+  --active-primary: var(--creative-primary);
+  --active-secondary: var(--creative-secondary);
+  --active-accent: var(--creative-accent);
+  --active-bg-start: var(--creative-bg-gradient-start);
+  --active-bg-end: var(--creative-bg-gradient-end);
+  --active-border: var(--creative-card-border);
+}
+
+body[data-section="professional"] {
+  --active-primary: var(--professional-primary);
+  --active-primary-rgb: var(--professional-primary-rgb);
+  --active-secondary: var(--professional-secondary);
+  --active-accent: var(--professional-accent);
+  --active-bg-start: var(--professional-bg-gradient-start);
+  --active-bg-end: var(--professional-bg-gradient-end);
+  --active-border: var(--professional-card-border);
+}
+
+/* ============================================ */
+/* GLASS-MORPHISM CARD DESIGN */
+/* ============================================ */
+
+.card-glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  border: var(--active-border);
+  transition: all var(--transition-duration) var(--transition-timing);
+}
+
+.dark .card-glass {
+  background: rgba(31, 41, 55, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.card-glass:hover {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: var(--active-accent);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+  transform: translateY(-4px);
+}
+
+.dark .card-glass:hover {
+  background: rgba(31, 41, 55, 0.9);
+}
+
+/* ============================================ */
+/* TYPOGRAPHY REFINEMENT */
+/* ============================================ */
+
+/* Creative Mode Typography */
+body[data-section="creative"] h1,
+body[data-section="creative"] h2,
+body[data-section="creative"] h3 {
+  font-family: 'Georgia', 'Garamond', serif;
+  line-height: 1.7;
+  letter-spacing: -0.5px;
+  font-weight: 700;
+}
+
+/* Professional Mode Typography */
+body[data-section="professional"] h1,
+body[data-section="professional"] h2,
+body[data-section="professional"] h3 {
+  font-family: 'Outfit', sans-serif;
+  line-height: 1.4;
+  letter-spacing: 0.5px;
+  font-weight: 700;
+}
+
+/* ============================================ */
+/* MATCH SCORE INDICATOR */
+/* ============================================ */
+
+.match-score {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 14px;
+  position: relative;
+  background: conic-gradient(
+    var(--active-accent) 0deg,
+    var(--active-accent) calc(var(--score) * 3.6deg),
+    rgba(0, 0, 0, 0.1) 0deg
+  );
+  transition: transform 0.3s ease;
+}
+
+.match-score::before {
+  content: '';
+  inset: 3px;
+  border-radius: 50%;
+  background: inherit;
+  filter: brightness(1.2);
+}
+
+.match-score-text {
+  position: relative;
+  z-index: 1;
+  color: var(--active-accent);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.match-score:hover {
+  transform: scale(1.1);
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.15));
+}
+
+/* ============================================ */
+/* TECH STACK TAGS */
+/* ============================================ */
+
+.tech-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  background: rgba(var(--active-primary-rgb), 0.1);
+  color: var(--active-primary);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(var(--active-primary-rgb), 0.2);
+}
+
+.tech-tag:hover {
+  background: var(--active-accent);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.tech-tag svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* ============================================ */
+/* TRUST BADGE WITH SHIMMER */
+/* ============================================ */
+
+.verified-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  background: linear-gradient(90deg, #10b981, #059669);
+  color: white;
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+  animation: shimmer 2s infinite;
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+}
+
+@keyframes shimmer {
+  0% {
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(16, 185, 129, 0.6);
+  }
+  100% {
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+  }
+}
+
+/* ============================================ */
+/* QUICK APPLY FAB (Floating Action Button) */
+/* ============================================ */
+
+.fab-quick-apply {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--active-accent), var(--active-primary));
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  z-index: 40;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(100px) scale(0.8);
+}
+
+.fab-quick-apply.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+}
+
+.fab-quick-apply:hover {
+  transform: scale(1.1);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+}
+
+.fab-quick-apply:active {
+  transform: scale(0.95);
+}
+
+/* ============================================ */
+/* SIDE DRAWER / QUICK-LOOK */
+/* ============================================ */
+
+.drawer-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  z-index: 50;
+}
+
+.drawer-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.drawer-panel {
+  position: fixed;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+  max-width: 450px;
+  background: white;
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+  z-index: 51;
+  overflow-y: auto;
+  box-shadow: -10px 0 40px rgba(0, 0, 0, 0.1);
+}
+
+.dark .drawer-panel {
+  background: #1f2937;
+}
+
+.drawer-panel.open {
+  transform: translateX(0);
+}
+
+@media (max-width: 640px) {
+  .drawer-panel {
+    max-width: 100%;
+  }
+}
+
+/* ============================================ */
+/* SALARY INSIGHTS OVERLAY */
+/* ============================================ */
+
+.salary-insight {
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(59, 130, 246, 0.1));
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #1f2937;
+  animation: slideIn 0.3s ease;
+}
+
+.dark .salary-insight {
+  color: #f3f4f6;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================ */
+/* NAVIGATION MOOD INDICATORS */
+/* ============================================ */
+
+nav a,
+nav button {
+  position: relative;
+  transition: all var(--transition-duration) var(--transition-timing);
+}
+
+nav a[data-section="professional"],
+nav button[data-section="professional"] {
+  opacity: 0.6;
+}
+
+body[data-section="professional"] nav a[data-section="professional"],
+body[data-section="professional"] nav button[data-section="professional"] {
+  opacity: 1;
+  color: var(--active-accent);
+}
+
+body[data-section="professional"] nav a[data-section="professional"]::after,
+body[data-section="professional"] nav button[data-section="professional"]::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--active-accent);
+  box-shadow: 0 0 10px var(--active-accent);
+}
+
+/* ============================================ */
+/* CAREER MAP VISUALIZATION */
+/* ============================================ */
+
+.career-map-container {
+  position: relative;
+  min-height: 600px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 20px;
+  padding: 40px;
+  margin: 40px 0;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.dark .career-map-container {
+  background: rgba(31, 41, 55, 0.5);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.career-node {
+  padding: 16px 24px;
+  border-radius: 12px;
+  background: var(--active-accent);
+  color: white;
+  font-weight: 600;
+  text-align: center;
+  position: relative;
+  min-width: 140px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.career-node:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+/* ============================================ */
+/* UTILITY CLASSES */
+/* ============================================ */
+
+.max-content-width {
+  max-width: 1100px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.breathable-padding {
+  padding: 2rem;
+}
+
+.refined-spacing {
+  gap: 1.5rem;
+}
+
+/* ============================================ */
+/* ENHANCED ANIMATIONS & MICRO-INTERACTIONS */
+/* ============================================ */
+
+@keyframes slideUpIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes glow {
+  0%, 100% {
+    text-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
+  }
+  50% {
+    text-shadow: 0 0 20px rgba(59, 130, 246, 0.8);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+/* Apply animations on entrance */
+.card-glass {
+  animation: slideUpIn 0.6s ease-out;
+}
+
+.match-score {
+  animation: scaleIn 0.5s ease-out;
+}
+
+/* ============================================ */
+/* RESPONSIVE ADJUSTMENTS */
+/* ============================================ */
+
+@media (max-width: 768px) {
+  .drawer-panel {
+    max-width: 100%;
+  }
+
+  .fab-quick-apply {
+    bottom: 24px;
+    right: 24px;
+    width: 56px;
+    height: 56px;
+  }
+
+  .career-map-container {
+    padding: 24px;
+    min-height: 400px;
+  }
+
+  .max-content-width {
+    max-width: 100%;
+    padding: 0 1rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .breathable-padding {
+    padding: 1.5rem;
+  }
+
+  .card-glass {
+    border-radius: 16px;
+  }
+
+  .fab-quick-apply {
+    bottom: 20px;
+    right: 20px;
+  }
+
+  .tech-tag {
+    font-size: 11px;
+    padding: 4px 10px;
+  }
+}
+
+/* ============================================ */
+/* SMOOTH TRANSITIONS FOR DARK MODE */
+/* ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition-duration: 0 ms !important;
+  }
+}
+
+/* ============================================ */
+/* SECTION MOOD INDICATORS */
+/* ============================================ */
+
+.section-indicator {
+  position: fixed;
+  bottom: 32px;
+  left: 32px;
+  padding: 12px 16px;
+  border-radius: 50px;
+  background: white;
+  dark: #1f2937;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  z-index: 30;
+  opacity: 0.7;
+  transition: all 0.3s ease;
+}
+
+.section-indicator:hover {
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+.section-indicator-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--active-accent);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.2);
+  }
+}

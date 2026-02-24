@@ -1,31 +1,20 @@
 import multer from "multer";
 import path from "path";
-import fs from "fs";
 
-// Ensure upload directory exists
-const uploadDir = "uploads/resumes";
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-// Storage
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadDir);
-  },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    const uniqueName = `resume-${Date.now()}${ext}`;
-    cb(null, uniqueName);
-  },
-});
+// Use memory storage for ImageKit uploads
+const storage = multer.memoryStorage();
 
 // File filter
 const fileFilter = (req, file, cb) => {
   const allowedTypes = /pdf|doc|docx/;
   const ext = path.extname(file.originalname).toLowerCase();
+  const mimeTypes = [
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+  ];
 
-  if (allowedTypes.test(ext)) {
+  if (allowedTypes.test(ext) && mimeTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
     cb(new Error("Only PDF, DOC, DOCX files are allowed"));

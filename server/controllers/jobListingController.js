@@ -265,3 +265,65 @@ export const getAllJobsAdmin = async (req, res) => {
     });
   }
 };
+
+// =================== CREATE JOB (Employer - Job Portal) ===================
+export const createJobByEmployer = async (req, res) => {
+  try {
+    const { 
+      jobTitle, 
+      title, 
+      company, 
+      location, 
+      salary, 
+      jobType, 
+      industry, 
+      description, 
+      requirements, 
+      benefits, 
+      applicationDeadline, 
+      postedBy,
+      technologies,
+      contactEmail,
+      companyWebsite 
+    } = req.body;
+
+    // Map field names (accept both jobTitle and title)
+    const jobTitleFinal = jobTitle || title;
+
+    // Validate required fields
+    if (!jobTitleFinal || !company || !location || !salary || !jobType || !industry || !description || !postedBy) {
+      return res.status(400).json({
+        success: false,
+        message: "All required fields must be filled",
+      });
+    }
+
+    // Create job (no admin check needed - employers from job portal can post)
+    const job = await Job.create({
+      title: jobTitleFinal,
+      company,
+      location,
+      salary,
+      jobType,
+      industry,
+      description,
+      requirements: Array.isArray(requirements) ? requirements : (requirements?.split?.(',') || []),
+      benefits: benefits || "",
+      applicationDeadline: applicationDeadline || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      postedBy: postedBy,
+      isActive: true,
+    });
+
+    res.status(201).json({
+      success: true,
+      message: "Job posted successfully",
+      data: job,
+    });
+  } catch (error) {
+    console.error("Create job by employer error:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message || "Error creating job",
+    });
+  }
+};

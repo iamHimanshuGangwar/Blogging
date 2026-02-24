@@ -1,5 +1,5 @@
 import React from 'react'
-import { Route, Routes } from 'react-router-dom'
+import { Route, Routes, Navigate } from 'react-router-dom'
 import Home from './Pages/Home'
 import Blog from './Pages/Blog'
 import BlogList from './components/Bloglist'
@@ -15,18 +15,39 @@ import JobApplications from './Pages/admin/JobApplications'
 import PostJob from './Pages/admin/PostJob'
 import ResumeBuilder from './Pages/ResumeBuilder'
 import JobSearch from './Pages/JobSearch'
+import JobPortalPage from './Pages/JobPortalPage'
+import MyApplications from './Pages/MyApplications'
+import ResumeManager from './Pages/ResumeManager'
+import UserSettings from './Pages/UserSettings'
+import PostJobPage from './Pages/PostJobPage'
 import 'quill/dist/quill.snow.css'
 import { Toaster } from 'react-hot-toast'
+import toast from 'react-hot-toast'
 import { useAppContext } from './context/AppContext'
 
-// Protected Route
+// Protected Route - Regular Users
 const ProtectedRoute = ({ isAuthenticated, children }) => {
   if (!isAuthenticated) return <Login />
   return children
 }
 
+// Admin Protected Route - Only Admins
+const AdminProtectedRoute = ({ isAuthenticated, isAdmin, children }) => {
+  if (!isAuthenticated) {
+    return <Login />
+  }
+  
+  if (!isAdmin) {
+    toast.error("⛔ You don't have admin access!");
+    return <Navigate to="/" replace />
+  }
+  
+  return children
+}
+
 const App = () => {
-  const { token } = useAppContext();
+  const { token, user } = useAppContext();
+  const isAdmin = user?.isAdmin || false;
 
   return (
     <div>
@@ -39,7 +60,12 @@ const App = () => {
         <Route path="/image-generator" element={<><Navbar /><ImageGenerator /></>} />
         <Route path="/blogs" element={<><Navbar /><BlogList /></>} />
         <Route path="/blog/:id" element={<Blog />} />
-        <Route path="/jobs" element={<><Navbar /><JobSearch /></>} />
+        <Route path="/jobs" element={<><Navbar /><JobPortalPage /></>} />
+        <Route path="/job/:id" element={<><Navbar /><JobSearch /></>} />
+        <Route path="/post-job" element={<><Navbar /><PostJobPage /></>} />
+        <Route path="/my-applications" element={<><Navbar /><MyApplications /></>} />
+        <Route path="/resume-manager" element={<><Navbar /><ResumeManager /></>} />
+        <Route path="/settings" element={<><Navbar /><UserSettings /></>} />
 
         {/* Login */}
         <Route
@@ -51,9 +77,9 @@ const App = () => {
         <Route
           path="/admin"
           element={
-            <ProtectedRoute isAuthenticated={token}>
+            <AdminProtectedRoute isAuthenticated={token} isAdmin={isAdmin}>
               <Layout />
-            </ProtectedRoute>
+            </AdminProtectedRoute>
           }
         >
           <Route index element={<DashBoard />} />

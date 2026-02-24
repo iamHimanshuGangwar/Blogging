@@ -12,10 +12,8 @@ export const connectDB = async () => {
     });
 
     // Connect to MongoDB
-    await mongoose.connect(process.env.MONGO_URI || process.env.MONGODB_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    // Note: `useNewUrlParser` and `useUnifiedTopology` are deprecated for MongoDB Node driver v4+
+    await mongoose.connect(process.env.MONGO_URI || process.env.MONGODB_URI);
 
   } catch (error) {
     console.error("MongoDB Connection Failed:", error.message);

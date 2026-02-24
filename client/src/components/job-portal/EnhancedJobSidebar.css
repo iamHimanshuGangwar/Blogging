@@ -1,0 +1,311 @@
+/* Enhanced Job Sidebar Styles */
+
+/* ============================================================
+   GLOWING SEARCH BAR WITH PULSE EFFECT
+   ============================================================ */
+
+.search-input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  background: white;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dark .search-input-container {
+  background: #1f2937;
+  border-color: #374151;
+}
+
+.search-input-container.active {
+  border-color: #a855f7;
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.5),
+              inset 0 0 10px rgba(168, 85, 247, 0.1);
+  animation: pulse-border 2s ease-in-out infinite;
+}
+
+.search-icon {
+  color: #a855f7;
+  opacity: 0.7;
+  transition: opacity 0.3s ease;
+}
+
+.search-input-container.active .search-icon {
+  opacity: 1;
+}
+
+.search-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 14px;
+  color: #1f2937;
+  placeholder: #9ca3af;
+}
+
+.dark .search-input {
+  color: #f3f4f6;
+}
+
+.search-input::placeholder {
+  color: #9ca3af;
+}
+
+.dark .search-input::placeholder {
+  color: #6b7280;
+}
+
+/* Pulse animation for active search bar */
+@keyframes pulse-border {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(168, 85, 247, 0.5),
+                inset 0 0 10px rgba(168, 85, 247, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(168, 85, 247, 0.8),
+                inset 0 0 15px rgba(168, 85, 247, 0.2);
+  }
+}
+
+/* ============================================================
+   AI POWER BADGE WITH SHIMMER EFFECT
+   ============================================================ */
+
+.ai-power-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+  box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4),
+              0 0 20px rgba(236, 72, 153, 0.3);
+  position: relative;
+  overflow: hidden;
+  font-weight: 700;
+  font-size: 12px;
+  color: white;
+}
+
+.ai-power-badge::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  animation: shimmer-move 3s infinite;
+}
+
+.shimmer-text {
+  position: relative;
+  z-index: 1;
+  display: inline-block;
+  animation: shimmer-glow 3s ease-in-out infinite;
+}
+
+@keyframes shimmer-move {
+  0% {
+    left: -100%;
+  }
+  50% {
+    left: 100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+@keyframes shimmer-glow {
+  0%, 100% {
+    text-shadow: 0 0 4px rgba(255, 255, 255, 0.5);
+  }
+  50% {
+    text-shadow: 0 0 12px rgba(255, 255, 255, 0.9),
+                 0 0 20px rgba(236, 72, 153, 0.6);
+  }
+}
+
+/* ============================================================
+   SECTION TRANSITIONS - STAGGERED FADE-IN
+   ============================================================ */
+
+section {
+  will-change: opacity, transform;
+}
+
+/* Smooth section fade-in transitions */
+@media (prefers-reduced-motion: no-preference) {
+  section {
+    animation: section-fade-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+}
+
+@keyframes section-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================================
+   ENHANCED FILTER STYLING
+   ============================================================ */
+
+.filter-section-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 0;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-section-header:hover {
+  color: #a855f7;
+}
+
+.filter-icon {
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Location filter left border accent */
+.location-filter {
+  border-left: 3px solid #a855f7;
+  padding-left: 16px;
+  margin-left: -3px;
+}
+
+/* Job type filter left border accent */
+.jobtype-filter {
+  border-left: 3px solid #ec4899;
+  padding-left: 16px;
+  margin-left: -3px;
+}
+
+/* Salary filter left border accent */
+.salary-filter {
+  border-left: 3px solid #10b981;
+  padding-left: 16px;
+  margin-left: -3px;
+}
+
+/* Industry filter left border accent */
+.industry-filter {
+  border-left: 3px solid #f59e0b;
+  padding-left: 16px;
+  margin-left: -3px;
+}
+
+/* ============================================================
+   BUTTON ANIMATIONS
+   ============================================================ */
+
+.apply-filters-btn {
+  background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.apply-filters-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.2);
+  transition: left 0.5s ease;
+}
+
+.apply-filters-btn:hover::before {
+  left: 100%;
+}
+
+.apply-filters-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(168, 85, 247, 0.4);
+}
+
+.apply-filters-btn:active {
+  transform: translateY(0);
+}
+
+/* ============================================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================================ */
+
+@media (max-width: 1024px) {
+  .search-input-container {
+    padding: 10px 14px;
+  }
+
+  .ai-power-badge {
+    width: 28px;
+    height: 28px;
+    font-size: 11px;
+  }
+}
+
+/* ============================================================
+   DARK MODE ENHANCEMENTS
+   ============================================================ */
+
+.dark .ai-power-badge {
+  box-shadow: 0 4px 15px rgba(168, 85, 247, 0.6),
+              0 0 20px rgba(236, 72, 153, 0.4);
+}
+
+.dark .search-input-container.active {
+  box-shadow: 0 0 30px rgba(168, 85, 247, 0.6),
+              inset 0 0 10px rgba(168, 85, 247, 0.15);
+}
+
+/* ============================================================
+   ACCESSIBILITY & PERFORMANCE
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .ai-power-badge::before,
+  .shimmer-text,
+  .search-input-container,
+  section {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* Optimize for mobile devices */
+@media (max-width: 640px) {
+  .search-input-container {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+
+  .ai-power-badge {
+    width: 28px;
+    height: 28px;
+  }
+}

@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React, { useRef, useEffect, useState } from 'react'
 import { Search, X, Sparkles, ArrowRight } from 'lucide-react'
 import { useAppContext } from '../context/AppContext'
 
@@ -31,19 +31,20 @@ const Header = () => {
 
       <div className="max-w-5xl mx-auto text-center relative z-10">
 
-        {/* Badge */}
+        {/* Badge - Staggered Fade In */}
         <div className="inline-flex items-center gap-2 px-5 py-2 mb-8 rounded-full
-            bg-indigo-700/80 backdrop-blur-sm text-white font-semibold">
+            bg-indigo-700/80 backdrop-blur-sm text-white font-semibold
+            animate-fade-in-down delay-100">
           <Sparkles className="w-5 h-5 text-yellow-300" />
           <span className="text-xs font-bold tracking-widest uppercase">
             ✨ New: AI Power Added
           </span>
         </div>
 
-        {/* Title */}
+        {/* Title - Staggered Fade In */}
         <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight leading-tight mb-6 
-            text-slate-900 dark:text-white">
-          Create Smarter <br className="hidden sm:block" />
+            text-slate-900 dark:text-white animate-fade-in-down delay-200">
+          <span className="font-light">Create Smarter</span> <br className="hidden sm:block" />
 
           <span
             className="bg-clip-text text-transparent 
@@ -52,51 +53,55 @@ const Header = () => {
           >
             Intelligent Blogging
           </span>{" "}
-          Platform
+          <span className="font-light">Platform</span>
         </h1>
 
-        {/* Subtitle */}
-        <p className="text-slate-800 dark:text-gray-200 text-lg sm:text-xl mb-10 max-w-2xl mx-auto font-semibold leading-relaxed">
+        {/* Subtitle - Staggered Fade In with Enhanced Typography */}
+        <p className="text-slate-800 dark:text-gray-200 text-lg sm:text-xl mb-10 max-w-2xl mx-auto font-medium leading-relaxed tracking-wide
+            animate-fade-in-down delay-300">
           Your space to think out loud. Share what matters, write freely,
           and let our AI boost your creativity.
         </p>
 
-        {/* Search Box */}
-        <form onSubmit={onSubmitHandler} className="relative max-w-2xl mx-auto group">
-          <div className="absolute inset-y-0 left-0 pl-5 flex items-center">
-            <Search className="h-6 w-6 text-slate-800/80 dark:text-gray-200" />
-          </div>
+        {/* Search Container - Glassmorphism with Staggered Fade In */}
+        <form onSubmit={onSubmitHandler} className="relative max-w-2xl mx-auto group animate-lift-in delay-400">
+          {/* Glassmorphism wrapper */}
+          <div className="glassmorphism rounded-full p-1">
+            <div className="absolute inset-y-0 left-0 pl-5 flex items-center">
+              <Search className="h-6 w-6 text-slate-800/80 dark:text-gray-200" />
+            </div>
 
-          <input
-            ref={inputRef}
-            type="text"
-            placeholder="Search for topics, ideas, or stories..."
-            className="block w-full pl-14 pr-40 py-4 
-              bg-white/80 dark:bg-gray-800/70 border border-white/60 dark:border-gray-700
-              rounded-full text-gray-800 dark:text-white placeholder-gray-600 dark:placeholder-gray-300 font-medium
-              focus:outline-none focus:ring-4 focus:ring-blue-400/50 focus:border-white/80
-              backdrop-blur-md transition-all"
-          />
+            <input
+              ref={inputRef}
+              type="text"
+              placeholder="Search for topics, ideas, or stories..."
+              className="block w-full pl-14 pr-40 py-4 
+                bg-white/50 dark:bg-gray-800/50 border-0
+                rounded-full text-gray-800 dark:text-white placeholder-gray-600 dark:placeholder-gray-400 font-medium
+                focus:outline-none pulse-glow-focus
+                transition-all"
+            />
 
-          <div className="absolute inset-y-1.5 right-1.5">
-            <button
-              type="submit"
-              className="h-full px-8 bg-gradient-to-r from-blue-600 to-indigo-600
-                hover:from-blue-700 hover:to-indigo-700
-                text-white rounded-full font-bold text-sm 
-                transition-all flex items-center gap-2"
-            >
-              Search <ArrowRight className="w-5 h-5" />
-            </button>
+            <div className="absolute inset-y-1.5 right-1.5">
+              <button
+                type="submit"
+                className="h-full px-8 bg-gradient-to-r from-purple-600 to-pink-500
+                  hover:from-purple-700 hover:to-pink-600
+                  text-white rounded-full font-bold text-sm 
+                  transition-all flex items-center gap-2"
+              >
+                Search <ArrowRight className="w-5 h-5" />
+              </button>
+            </div>
           </div>
         </form>
 
-        {/* Clear Button */}
+        {/* Clear Button - Staggered Fade In */}
         {input && (
-          <div className="mt-8">
+          <div className="mt-8 animate-lift-in delay-500">
             <button
               onClick={onClear}
-              className="inline-flex items-center gap-2 text-sm font-semibold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 px-4 py-2 rounded-full transition-all"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/30 px-4 py-2 rounded-full transition-all"
             >
               <X className="w-4 h-4" />
               Clear search results

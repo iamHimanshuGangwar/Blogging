@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { useAppContext } from "../context/AppContext";
+import ProfileSidebar from "../components/ProfileSidebar";
 
 /* ---------------- LIVE PREVIEW ---------------- */
 
@@ -209,9 +210,16 @@ const ResumeBuilder = () => {
   };
 
   return (
-    <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2 gap-8 p-8 bg-gray-100 dark:bg-gray-900">
+    <div className="min-h-screen grid grid-cols-1 lg:grid-cols-3 gap-8 p-8 bg-gray-100 dark:bg-gray-900">
+      {/* SIDEBAR */}
+      <div className="lg:col-span-1">
+        <div className="sticky top-8 space-y-6">
+          <ProfileSidebar />
+        </div>
+      </div>
+
       {/* FORM */}
-      <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-xl">
+      <div className="lg:col-span-1 bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-xl h-fit">
         <div className="flex items-center gap-3 mb-6">
           <button
             onClick={() => navigate(-1)}
@@ -232,7 +240,7 @@ const ResumeBuilder = () => {
       </div>
 
       {/* PREVIEW */}
-      <div className="sticky top-8 h-[90vh]">
+      <div className="lg:col-span-1 sticky top-8 h-[90vh]">
         <LiveResumePreview data={resumeData} theme={theme} />
       </div>
     </div>
