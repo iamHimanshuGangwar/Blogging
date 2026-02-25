@@ -10,7 +10,6 @@ AiBlog is a full-stack blogging and career platform that combines content creati
 
 ---
 
-
 ## Highlights
 
 - Job board with resume upload (multipart/form-data) and application status tracking
