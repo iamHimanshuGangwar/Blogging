@@ -39,7 +39,6 @@ app.use(express.urlencoded({ extended: true }));
 
 // Serve static files (for PDF downloads)
 app.use('/downloads', express.static(path.join(__dirname, 'uploads')));
-
 // Connect to DB
 connectDB();
 
