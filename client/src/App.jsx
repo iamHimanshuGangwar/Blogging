@@ -38,7 +38,7 @@ const AdminProtectedRoute = ({ isAuthenticated, isAdmin, children }) => {
   }
   
   if (!isAdmin) {
-    toast.error("⛔ You don't have admin access!");
+    toast.error("You don't have admin access!");
     return <Navigate to="/" replace />
   }
   
