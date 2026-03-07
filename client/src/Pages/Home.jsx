@@ -20,8 +20,7 @@ const Home = () => {
       <Header />
       
       {/* Features Section */}
-      
-
+  
       {/* Blog List Section */}
       <section className="py-16 md:py-24 bg-white dark:bg-gray-900">
         <Bloglist />
