@@ -56,7 +56,7 @@ Prerequisites:
 
 - Node.js 18+ and npm
 - MongoDB instance (local or cloud)
-
+  
 1. Clone the repo
 
 ```bash
