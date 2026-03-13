@@ -18,7 +18,6 @@ export const sendOTP = async (email, otp) => {
       <p>OTP is valid for 10 minutes.</p>
     `,
   };
-
   let lastError = null;
 
   for (const t of transportsToTry) {
