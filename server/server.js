@@ -22,7 +22,6 @@ import userRouter from "./routes/userRoutes.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
 // Load environment with minimal logging
 dotenv.config({ quiet: true });
 
