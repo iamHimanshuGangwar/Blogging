@@ -7,7 +7,6 @@ const router = express.Router();
 
 // Get user profile
 router.get("/profile", authenticateToken, getUserProfile);
-
 // Upload resume
 router.post("/upload-resume", authenticateToken, uploadResumeMiddleware.single("resume"), uploadResume);
 
