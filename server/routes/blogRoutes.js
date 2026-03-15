@@ -5,6 +5,7 @@ import { addComment, deleteById, getAllBlogs, getBlogById, getBlogComments, newb
 import upload from '../middlewares/multer.js'
 import auth from '../middlewares/auth.js';
 
+
 const newRouter=express.Router();
 newRouter.post('/blogs',upload.single('image'),auth,newblog)
 newRouter.get('/all',getAllBlogs)
