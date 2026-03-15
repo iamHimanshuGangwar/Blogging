@@ -7,7 +7,6 @@ export const sendOTP = async (email, otp) => {
     // Submission (STARTTLS) -- often more reliable
     { host: "smtp.gmail.com", port: 587, secure: false },
   ];
-
   const message = {
     from: `"Auth System" <${process.env.MAIL_USER}>`,
     to: email,
