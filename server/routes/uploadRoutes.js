@@ -6,7 +6,6 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const router = express.Router();
-
 // Initialize ImageKit
 const imagekit = new ImageKit({
   publicKey: process.env.IMAGEKIT_PUBLIC_KEY,
