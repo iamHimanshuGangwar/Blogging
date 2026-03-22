@@ -8,7 +8,6 @@ import OTPModal from "./auth/OTPModal";
 
 const AuthModal = () => {
   const { authModal, closeModal } = useAuth();
-
   if (!authModal) return null;
 
   return (
