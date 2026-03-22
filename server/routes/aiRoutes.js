@@ -5,6 +5,7 @@ import {
   generateImage,
   generateTTS,
   generateBlogSummary,
+  analyzeResume,
 } from "../controllers/aiController.js";
 
 const router = express.Router();
@@ -12,6 +13,7 @@ const router = express.Router();
 // Resume Builder Routes
 router.post("/resume/generate", generateResume);
 router.post("/resume/download", downloadResume);
+router.post("/resume/analyze", analyzeResume);
 
 // Image Generator Routes
 router.post("/image/generate-image", generateImage);

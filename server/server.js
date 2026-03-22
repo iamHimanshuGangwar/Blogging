@@ -66,7 +66,7 @@ if (fs.existsSync(clientBuildPath)) {
   app.use(express.static(clientBuildPath));
 
   // For any non-API route, serve the client's index.html so client-side router can handle it
-  app.get('*', (req, res, next) => {
+  app.use((req, res, next) => {
     if (req.path && req.path.startsWith('/api/')) return next();
     res.sendFile(path.join(clientBuildPath, 'index.html'));
   });
