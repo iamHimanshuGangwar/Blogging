@@ -14,6 +14,7 @@ import {
   Award,
   Mail,
 } from "lucide-react";
+import { getJobSalary } from "../../utils/currencyUtils";
 
 const JobDetailsModal = ({ job, isOpen, onClose, onApply, onTailor }) => {
   const [isSaved, setIsSaved] = useState(false);
@@ -33,13 +34,7 @@ const JobDetailsModal = ({ job, isOpen, onClose, onApply, onTailor }) => {
   };
 
   const getSalaryDisplay = () => {
-    if (job.salary?.hideFromPublic) {
-      return "Salary not disclosed";
-    }
-    if (job.salary?.min && job.salary?.max) {
-      return `$${(job.salary.min / 1000).toFixed(0)}K - $${(job.salary.max / 1000).toFixed(0)}K`;
-    }
-    return "Competitive salary";
+    return getJobSalary(job);
   };
 
   return (

@@ -34,7 +34,7 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className={`w-full ${gradientNav} shadow-md`}>
+      <nav className={`w-full ${gradientNav} shadow-md sticky top-0 z-50`}>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 text-white">
 

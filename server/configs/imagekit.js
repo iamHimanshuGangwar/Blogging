@@ -1,8 +1,8 @@
 import ImageKit from 'imagekit';
-import dotenv from 'dotenv';
-dotenv.config();
+
+// dotenv is already loaded in server.js - env vars should be available
 if(!process.env.IMAGEKIT_PUBLIC_KEY){
-    throw new Error("Imagekit pbulic key is not defined in env file");
+    throw new Error("Imagekit public key is not defined in env file");
 }
 const imagekit = new ImageKit({
     publicKey: process.env.IMAGEKIT_PUBLIC_KEY,

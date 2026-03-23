@@ -7,6 +7,8 @@ import {
   Zap,
   BookOpen,
 } from "lucide-react";
+import { getJobSalary } from "../../utils/currencyUtils";
+import AIJobInsights from "./AIJobInsights";
 
 /**
  * Job Card Component
@@ -19,18 +21,13 @@ const JobCard = ({
   onApply,
   onDetails,
   onTailor,
+  userProfile = {},
 }) => {
   const [isHovering, setIsHovering] = useState(false);
+  const [showInsights, setShowInsights] = useState(false);
 
   const getSalaryDisplay = () => {
-    if (!job.salary) return "Not specified";
-    if (job.salary.min && job.salary.max) {
-      return `$${job.salary.min}K - $${job.salary.max}K`;
-    }
-    if (job.salary.min) {
-      return `$${job.salary.min}K+`;
-    }
-    return "Competitive";
+    return getJobSalary(job);
   };
 
   const getMatchColor = (score) => {
@@ -110,6 +107,22 @@ const JobCard = ({
             "{job.description}"
           </p>
         )}
+
+        {/* AI Insights Bar */}
+        <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+          <button
+            onClick={() => setShowInsights(!showInsights)}
+            className="w-full flex items-center gap-2 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition"
+          >
+            <Zap size={14} />
+            {showInsights ? "Hide" : "Show"} AI Insights
+          </button>
+          {showInsights && (
+            <div className="mt-3">
+              <AIJobInsights job={job} userProfile={userProfile} isExpanded={true} />
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Action Buttons */}

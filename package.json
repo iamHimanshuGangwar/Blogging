@@ -1,0 +1,24 @@
+{
+  "name": "aiblog-all-in-one-blogging-career-platform",
+  "version": "1.0.0",
+  "description": "AiBlog is a full-stack blogging and career platform that combines content creation, AI-powered features, and a job board with application tracking. It includes:",
+  "main": "index.js",
+  "scripts": {
+    "start": "concurrently \"npm run dev --prefix client\" \"npm start --prefix server\"",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iamHimanshuGangwar/AiBlog-All-in-One-Blogging-Career-Platform.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/iamHimanshuGangwar/AiBlog-All-in-One-Blogging-Career-Platform/issues"
+  },
+  "homepage": "https://github.com/iamHimanshuGangwar/AiBlog-All-in-One-Blogging-Career-Platform#readme",
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}

@@ -199,6 +199,24 @@ const EnhancedJobSidebar = ({
                     className="search-input"
                   />
                 </div>
+                <div className="mt-4">
+                  <div
+                    className={`search-input-container ${
+                      searchActive ? "active" : ""
+                    }`}
+                  >
+                    <MapPin size={18} className="search-icon" />
+                    <input
+                      type="text"
+                      placeholder="City, country..."
+                      value={locationFilter}
+                      onChange={(e) => setLocationFilter(e.target.value)}
+                      onFocus={() => setSearchActive(true)}
+                      onBlur={() => setSearchActive(false)}
+                      className="search-input"
+                    />
+                  </div>
+                </div>
               </section>
 
               {/* Location Filter */}

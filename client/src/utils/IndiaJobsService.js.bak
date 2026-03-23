@@ -1,0 +1,559 @@
+/**
+ * Global Jobs Service
+ * Provides real-time job data for locations worldwide
+ * Covers major job titles, locations, and salary ranges globally
+ */
+
+// Mock global jobs database - In production, connect to API
+const INDIA_JOBS = [
+  // USA - San Francisco
+  {
+    id: "job-1",
+    title: "Senior React Developer",
+    company: "Google",
+    location: "San Francisco",
+    country: "United States",
+    salary: "$180,000 - $250,000",
+    salaryMin: 180000,
+    salaryMax: 250000,
+    jobType: "Full-time",
+    description: "Build scalable React applications for enterprise clients.",
+    skills: ["React", "JavaScript", "Node.js"],
+    experience: 5,
+    posted: "2 days ago",
+    industry: "IT Services",
+  },
+  // USA - New York
+  {
+    id: "job-2",
+    title: "Full Stack Developer",
+    company: "Meta",
+    location: "New York",
+    country: "United States",
+    salary: "$200,000 - $280,000",
+    salaryMin: 200000,
+    salaryMax: 280000,
+    jobType: "Full-time",
+    description: "Develop full-stack e-commerce solutions.",
+    skills: ["React", "Python", "PostgreSQL", "AWS"],
+    experience: 4,
+    posted: "1 day ago",
+    industry: "E-commerce",
+  },
+  // USA - Seattle
+  {
+    id: "job-3",
+    title: "Backend Engineer",
+    company: "Amazon",
+    location: "Seattle",
+    country: "United States",
+    salary: "$220,000 - $320,000",
+    salaryMin: 220000,
+    salaryMax: 320000,
+    jobType: "Full-time",
+    description: "Build scalable backend systems.",
+    skills: ["Java", "Python", "Cloud", "Microservices"],
+    experience: 6,
+    posted: "3 days ago",
+    industry: "Technology",
+  },
+  // UK - London
+  {
+    id: "job-4",
+    title: "Data Science Engineer",
+    company: "DeepMind",
+    location: "London",
+    country: "United Kingdom",
+    salary: "£120,000 - £180,000",
+    salaryMin: 120000,
+    salaryMax: 180000,
+    jobType: "Full-time",
+    description: "Work on ML models and data analytics.",
+    skills: ["Python", "Machine Learning", "SQL", "Pandas"],
+    experience: 4,
+    posted: "2 days ago",
+    industry: "AI/ML",
+  },
+  // Canada - Toronto
+  {
+    id: "job-5",
+    title: "DevOps Engineer",
+    company: "Shopify",
+    location: "Toronto",
+    country: "Canada",
+    salary: "$CAD 140,000 - $180,000",
+    salaryMin: 140000,
+    salaryMax: 180000,
+    jobType: "Full-time",
+    description: "Manage cloud infrastructure and CI/CD pipelines.",
+    skills: ["Docker", "Kubernetes", "AWS", "Terraform"],
+    experience: 4,
+    posted: "5 days ago",
+    industry: "Cloud",
+  },
+  // India - Bangalore
+  {
+    id: "job-6",
+    title: "Senior React Developer",
+    company: "TCS",
+    location: "Bangalore",
+    country: "India",
+    salary: "₹12,00,000 - ₹18,00,000",
+    salaryMin: 1200000,
+    salaryMax: 1800000,
+    jobType: "Full-time",
+    description: "Build scalable React applications for enterprise clients.",
+    skills: ["React", "JavaScript", "Node.js"],
+    experience: 5,
+    posted: "2 days ago",
+    industry: "IT Services",
+  },
+  {
+    id: "job-2",
+    title: "Full Stack Developer",
+    company: "Flipkart",
+    location: "Bangalore",
+    state: "Karnataka",
+    salary: "₹15,00,000 - ₹22,00,000",
+    salaryMin: 1500000,
+    salaryMax: 2200000,
+    jobType: "Full-time",
+    description: "Develop full-stack e-commerce solutions.",
+    skills: ["React", "Python", "PostgreSQL", "AWS"],
+    experience: 4,
+    posted: "1 day ago",
+    industry: "E-commerce",
+  },
+  {
+    id: "job-3",
+    title: "Backend Engineer",
+    company: "Microsoft",
+    location: "Bangalore",
+    state: "Karnataka",
+    salary: "₹18,00,000 - ₹28,00,000",
+    salaryMin: 1800000,
+    salaryMax: 2800000,
+    jobType: "Full-time",
+    description: "Build scalable backend systems.",
+    skills: ["Java", "Python", "Cloud", "Microservices"],
+    experience: 6,
+    posted: "3 days ago",
+    industry: "Technology",
+  },
+
+  // Hyderabad Jobs
+  {
+    id: "job-4",
+    title: "Data Science Engineer",
+    company: "Amazon",
+    location: "Hyderabad",
+    state: "Telangana",
+    salary: "₹13,00,000 - ₹19,00,000",
+    salaryMin: 1300000,
+    salaryMax: 1900000,
+    jobType: "Full-time",
+    description: "Work on ML models and data analytics.",
+    skills: ["Python", "Machine Learning", "SQL", "Pandas"],
+    experience: 4,
+    posted: "2 days ago",
+    industry: "AI/ML",
+  },
+  {
+    id: "job-5",
+    title: "DevOps Engineer",
+    company: "Cognizant",
+    location: "Hyderabad",
+    state: "Telangana",
+    salary: "₹11,00,000 - ₹16,00,000",
+    salaryMin: 1100000,
+    salaryMax: 1600000,
+    jobType: "Full-time",
+    description: "Manage cloud infrastructure and CI/CD pipelines.",
+    skills: ["Docker", "Kubernetes", "AWS", "Jenkins"],
+    experience: 5,
+    posted: "5 days ago",
+    industry: "IT Services",
+  },
+
+  // Mumbai Jobs
+  {
+    id: "job-6",
+    title: "Frontend Engineer",
+    company: "Spotify",
+    location: "Mumbai",
+    state: "Maharashtra",
+    salary: "₹14,00,000 - ₹21,00,000",
+    salaryMin: 1400000,
+    salaryMax: 2100000,
+    jobType: "Full-time",
+    description: "Build beautiful user interfaces.",
+    skills: ["React", "TypeScript", "CSS", "Vue"],
+    experience: 3,
+    posted: "4 days ago",
+    industry: "Technology",
+  },
+  {
+    id: "job-7",
+    title: "Product Manager",
+    company: "Unacademy",
+    location: "Mumbai",
+    state: "Maharashtra",
+    salary: "₹12,00,000 - ₹18,00,000",
+    salaryMin: 1200000,
+    salaryMax: 1800000,
+    jobType: "Full-time",
+    description: "Lead product strategy and development.",
+    skills: ["Product Strategy", "Analytics", "Leadership"],
+    experience: 6,
+    posted: "1 week ago",
+    industry: "EdTech",
+  },
+
+  // Delhi Jobs
+  {
+    id: "job-8",
+    title: "Junior Developer",
+    company: "Accenture",
+    location: "Delhi",
+    state: "Delhi",
+    salary: "₹6,00,000 - ₹10,00,000",
+    salaryMin: 600000,
+    salaryMax: 1000000,
+    jobType: "Full-time",
+    description: "Start your career as a junior developer.",
+    skills: ["JavaScript", "React", "Node.js"],
+    experience: 0,
+    posted: "3 days ago",
+    industry: "IT Services",
+  },
+  {
+    id: "job-9",
+    title: "QA Engineer",
+    company: "IBM",
+    location: "Delhi",
+    state: "Delhi",
+    salary: "₹7,00,000 - ₹11,00,000",
+    salaryMin: 700000,
+    salaryMax: 1100000,
+    jobType: "Full-time",
+    description: "Ensure software quality through testing.",
+    skills: ["Test Automation", "Selenium", "Python"],
+    experience: 2,
+    posted: "2 days ago",
+    industry: "IT Services",
+  },
+
+  // Pune Jobs
+  {
+    id: "job-10",
+    title: "iOS Developer",
+    company: "OYO Rooms",
+    location: "Pune",
+    state: "Maharashtra",
+    salary: "₹10,00,000 - ₹15,00,000",
+    salaryMin: 1000000,
+    salaryMax: 1500000,
+    jobType: "Full-time",
+    description: "Build iOS applications.",
+    skills: ["Swift", "Objective-C", "iOS"],
+    experience: 3,
+    posted: "6 days ago",
+    industry: "Travel",
+  },
+  {
+    id: "job-11",
+    title: "Android Developer",
+    company: "Swiggy",
+    location: "Pune",
+    state: "Maharashtra",
+    salary: "₹10,50,000 - ₹16,00,000",
+    salaryMin: 1050000,
+    salaryMax: 1600000,
+    jobType: "Full-time",
+    description: "Develop Android applications.",
+    skills: ["Kotlin", "Java", "Android"],
+    experience: 3,
+    posted: "4 days ago",
+    industry: "Food Delivery",
+  },
+
+  // Noida Jobs
+  {
+    id: "job-12",
+    title: "Senior Java Developer",
+    company: "HCL Technologies",
+    location: "Noida",
+    state: "Uttar Pradesh",
+    salary: "₹11,00,000 - ₹16,00,000",
+    salaryMin: 1100000,
+    salaryMax: 1600000,
+    jobType: "Full-time",
+    description: "Develop enterprise Java applications.",
+    skills: ["Java", "Spring Boot", "Microservices"],
+    experience: 5,
+    posted: "2 days ago",
+    industry: "IT Services",
+  },
+
+  // Gurgaon Jobs
+  {
+    id: "job-13",
+    title: "UI/UX Designer",
+    company: "Freshworks",
+    location: "Gurgaon",
+    state: "Haryana",
+    salary: "₹8,00,000 - ₹13,00,000",
+    salaryMin: 800000,
+    salaryMax: 1300000,
+    jobType: "Full-time",
+    description: "Design beautiful user experiences.",
+    skills: ["Figma", "UI Design", "UX Research"],
+    experience: 2,
+    posted: "5 days ago",
+    industry: "SaaS",
+  },
+
+  // Kolkata Jobs
+  {
+    id: "job-14",
+    title: "Business Analyst",
+    company: "Capgemini",
+    location: "Kolkata",
+    state: "West Bengal",
+    salary: "₹6,50,000 - ₹10,50,000",
+    salaryMin: 650000,
+    salaryMax: 1050000,
+    jobType: "Full-time",
+    description: "Analyze business requirements.",
+    skills: ["Business Analysis", "SQL", "Excel"],
+    experience: 2,
+    posted: "3 days ago",
+    industry: "IT Services",
+  },
+
+  // Chennai Jobs
+  {
+    id: "job-15",
+    title: "Database Administrator",
+    company: "Oracle",
+    location: "Chennai",
+    state: "Tamil Nadu",
+    salary: "₹9,00,000 - ₹14,00,000",
+    salaryMin: 900000,
+    salaryMax: 1400000,
+    jobType: "Full-time",
+    description: "Manage and optimize databases.",
+    skills: ["Oracle", "SQL", "Database Design"],
+    experience: 4,
+    posted: "6 days ago",
+    industry: "Database",
+  },
+  {
+    id: "job-16",
+    title: "Cloud Architect",
+    company: "Google Cloud",
+    location: "Chennai",
+    state: "Tamil Nadu",
+    salary: "₹20,00,000 - ₹30,00,000",
+    salaryMin: 2000000,
+    salaryMax: 3000000,
+    jobType: "Full-time",
+    description: "Design cloud solutions.",
+    skills: ["GCP", "Cloud Architecture", "Kubernetes"],
+    experience: 8,
+    posted: "1 week ago",
+    industry: "Cloud",
+  },
+];
+
+// Indian states and major cities
+export const INDIA_LOCATIONS = [
+  { state: "Andhra Pradesh", cities: ["Hyderabad", "Vijayawada", "Visakhapatnam"] },
+  { state: "Bengaluru", cities: ["Bangalore", "Whitefield", "Koramangala"] },
+  { state: "Delhi", cities: ["Delhi", "Noida", "Gurgaon", "Faridabad"] },
+  { state: "Gujarat", cities: ["Ahmedabad", "Surat", "Vadodara"] },
+  { state: "Haryana", cities: ["Gurgaon", "Noida", "Faridabad"] },
+  { state: "Karnataka", cities: ["Bangalore", "Mysore", "Mangalore"] },
+  { state: "Kerala", cities: ["Kochi", "Thiruvananthapuram", "Kozhikode"] },
+  { state: "Maharashtra", cities: ["Mumbai", "Pune", "Nagpur", "Nashik"] },
+  { state: "Telangana", cities: ["Hyderabad", "Warangal", "Nizamabad"] },
+  { state: "Tamil Nadu", cities: ["Chennai", "Bangalore", "Coimbatore"] },
+  { state: "Uttar Pradesh", cities: ["Noida", "Lucknow", "Kanpur"] },
+  { state: "West Bengal", cities: ["Kolkata", "Darjeeling"] },
+];
+
+export const IndiaJobsService = {
+  /**
+   * Search jobs across India
+   * @param {Object} params - Search parameters
+   * @returns {Promise} Job results
+   */
+  async searchJobs(params = {}) {
+    try {
+      const { query = "", location = "", jobType = "" } = params;
+
+      // Filter jobs based on parameters
+      let results = INDIA_JOBS;
+
+      // Filter by job title
+      if (query) {
+        results = results.filter(job =>
+          job.title.toLowerCase().includes(query.toLowerCase()) ||
+          job.company.toLowerCase().includes(query.toLowerCase()) ||
+          job.skills.some(skill => skill.toLowerCase().includes(query.toLowerCase()))
+        );
+      }
+
+      // Filter by location
+      if (location) {
+        results = results.filter(job =>
+          job.location.toLowerCase().includes(location.toLowerCase()) ||
+          job.state.toLowerCase().includes(location.toLowerCase())
+        );
+      }
+
+      // Filter by job type
+      if (jobType && jobType !== "All") {
+        results = results.filter(job => job.jobType === jobType);
+      }
+
+      // Sort by recently posted
+      results.sort((a, b) => new Date(b.posted) - new Date(a.posted));
+
+      return {
+        success: true,
+        data: results,
+        total: results.length,
+      };
+    } catch (error) {
+      console.error("[IndiaJobsService] Search error:", error);
+      return {
+        success: false,
+        message: error.message,
+        data: [],
+      };
+    }
+  },
+
+  /**
+   * Get all locations in India
+   * @returns {Array} Locations array
+   */
+  getLocations() {
+    return INDIA_LOCATIONS;
+  },
+
+  /**
+   * Get all unique cities
+   * @returns {Array} Cities array
+   */
+  getCities() {
+    const cities = new Set();
+    INDIA_JOBS.forEach(job => {
+      cities.add(job.location);
+    });
+    return Array.from(cities).sort();
+  },
+
+  /**
+   * Get all unique job types
+   * @returns {Array} Job types
+   */
+  getJobTypes() {
+    const types = new Set();
+    INDIA_JOBS.forEach(job => {
+      types.add(job.jobType);
+    });
+    return Array.from(types).sort();
+  },
+
+  /**
+   * Get all industries
+   * @returns {Array} Industries
+   */
+  getIndustries() {
+    const industries = new Set();
+    INDIA_JOBS.forEach(job => {
+      industries.add(job.industry);
+    });
+    return Array.from(industries).sort();
+  },
+
+  /**
+   * Get jobs by salary range
+   * @param {number} min - Minimum salary
+   * @param {number} max - Maximum salary
+   * @returns {Array} Jobs in range
+   */
+  getJobsBySalary(min, max) {
+    return INDIA_JOBS.filter(
+      job => job.salaryMin >= min && job.salaryMax <= max
+    );
+  },
+
+  /**
+   * Get jobs by skill match
+   * @param {Array} skills - User skills
+   * @returns {Array} Matching jobs sorted by match score
+   */
+  getJobsBySkills(userSkills = []) {
+    return INDIA_JOBS.map(job => {
+      // Calculate match score based on skills
+      const matchedSkills = job.skills.filter(skill =>
+        userSkills.some(us => 
+          us.toLowerCase().includes(skill.toLowerCase()) ||
+          skill.toLowerCase().includes(us.toLowerCase())
+        )
+      );
+
+      const matchScore = userSkills.length > 0 
+        ? (matchedSkills.length / job.skills.length) * 100
+        : 0;
+
+      return {
+        ...job,
+        matchedSkills,
+        matchScore: Math.round(matchScore),
+      };
+    }).filter(job => job.matchScore > 0)
+      .sort((a, b) => b.matchScore - a.matchScore);
+  },
+
+  /**
+   * Get trending jobs (most common titles)
+   * @returns {Array} Top jobs
+   */
+  getTrendingJobs() {
+    const jobTitles = {};
+    INDIA_JOBS.forEach(job => {
+      jobTitles[job.title] = (jobTitles[job.title] || 0) + 1;
+    });
+
+    return Object.keys(jobTitles)
+      .sort((a, b) => jobTitles[b] - jobTitles[a])
+      .slice(0, 10);
+  },
+
+  /**
+   * Get salary statistics by job title
+   * @param {string} jobTitle - Job title
+   * @returns {Object} Salary stats
+   */
+  getSalaryStats(jobTitle) {
+    const jobs = INDIA_JOBS.filter(j =>
+      j.title.toLowerCase().includes(jobTitle.toLowerCase())
+    );
+
+    if (jobs.length === 0) return null;
+
+    const salaries = jobs.map(j => j.salaryMin);
+    const avgSalary = salaries.reduce((a, b) => a + b, 0) / salaries.length;
+
+    return {
+      minimum: Math.min(...salaries),
+      maximum: Math.max(...salaries),
+      average: Math.round(avgSalary),
+      count: jobs.length,
+    };
+  },
+};

@@ -32,6 +32,7 @@ import JobPortalLogin from "../components/job-portal/JobPortalLogin";
 import PostJobForm from "../components/job-portal/PostJobForm";
 import EnhancedJobSidebar from "../components/job-portal/EnhancedJobSidebar";
 import { Menu } from "lucide-react";
+import { AdzunaService } from "../utils/AdzunaService";
 
 const JobSearchPage = () => {
   const navigate = useNavigate();
@@ -98,31 +99,64 @@ const JobSearchPage = () => {
   );
   const [showJobPortalLogin, setShowJobPortalLogin] = useState(false);
 
-  // Fetch jobs from backend
+  // Job Portal Notifications
+  const [jobPortalNotifications, setJobPortalNotifications] = useState([
+    {
+      type: "success",
+      title: "Welcome to Job Portal!",
+      message: "Explore job opportunities from all over the world. Use filters to customize your search.",
+    },
+  ]);
+
+  // Fetch jobs from Adzuna API with real-time filters
   useEffect(() => {
     const fetchJobs = async () => {
       try {
         setLoading(true);
-        const response = await axios.get("/api/job-listings/all-jobs");
         
-        if (response.data.success) {
-          const jobsList = response.data.data || [];
+        // Build search query from filters
+        const query = searchQuery || "developer"; // Default query
+        const location = locationFilter || "gb"; // Default to GB
+        const jobType = jobTypeFilter !== "All" ? jobTypeFilter : "";
+        
+        // Call Adzuna API with filters
+        const result = await AdzunaService.searchJobs({
+          query: query,
+          location: location,
+          page: 1,
+          maxResults: 25,
+          jobType: jobType,
+          salaryMin: salaryRange.min,
+          salaryMax: salaryRange.max,
+        });
+
+        if (result && result.success) {
+          const jobsList = result.data || [];
           setJobs(jobsList);
+          setFilteredJobs(jobsList);
           
-          // Extract unique industries
-          const uniqueIndustries = [...new Set(jobsList.map(job => job.industry))];
-          setIndustries(uniqueIndustries);
+          // Extract unique industries from results (Adzuna doesn't always provide this)
+          const uniqueIndustries = [...new Set(jobsList.map(job => job.industry).filter(Boolean))];
+          setIndustries(["All", ...uniqueIndustries]);
+        } else {
+          toast.error(result?.message || "Failed to fetch jobs from Adzuna");
+          setJobs([]);
+          setFilteredJobs([]);
         }
       } catch (error) {
         console.error("Fetch jobs error:", error);
-        // Don't show error toast, just log it
+        toast.error("Failed to load jobs. Please try again.");
+        setJobs([]);
+        setFilteredJobs([]);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchJobs();
-  }, [axios]);
+    // Debounce API calls to avoid excessive requests while user is typing
+    const timer = setTimeout(fetchJobs, 500);
+    return () => clearTimeout(timer);
+  }, [searchQuery, locationFilter, jobTypeFilter, salaryRange]);
 
   // Listen for section changes to detect when in professional section
   useEffect(() => {
@@ -158,25 +192,13 @@ const JobSearchPage = () => {
     localStorage.setItem("userResumes", JSON.stringify(resumes));
   }, [resumes]);
 
+  // Note: Filtering is now done at API level through Adzuna
+  // Local filtering is minimal - only for client-side polish
   const applyFilters = useCallback(() => {
-    const results = jobs.filter((job) => {
-      const titleMatch = job.title
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase());
-      const locationMatch = job.location
-        .toLowerCase()
-        .includes(locationFilter.toLowerCase());
-      const industryMatch =
-        industryFilter === "All" || job.industry === industryFilter;
-      const jobTypeMatch =
-        jobTypeFilter === "All" || job.jobType === jobTypeFilter;
-      const salaryMin = job.salary?.min || 0;
-      const salaryMatch = salaryMin >= salaryRange.min && salaryMin <= salaryRange.max;
-      return titleMatch && locationMatch && industryMatch && jobTypeMatch && salaryMatch;
-    });
-
-    setFilteredJobs(results);
-  }, [jobs, searchQuery, locationFilter, industryFilter, jobTypeFilter, salaryRange]);
+    // Most filtering is handled by Adzuna API
+    // This is just for any additional client-side filtering if needed
+    setFilteredJobs(jobs);
+  }, [jobs]);
 
   useEffect(() => {
     applyFilters();
@@ -476,6 +498,7 @@ const JobSearchPage = () => {
         showSalaryInsights={showSalaryInsights}
         onToggleSalaryInsights={() => setShowSalaryInsights(!showSalaryInsights)}
         myApplicationsCount={myApplications.length}
+        notifications={jobPortalNotifications}
         onMyApplications={async () => {
           if (!jobPortalUser) {
             setShowJobPortalLogin(true);
