@@ -12,7 +12,6 @@ const imagekit = new ImageKit({
   privateKey: process.env.IMAGEKIT_PRIVATE_KEY,
   urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT,
 });
-
 // Setup multer for file uploads
 const upload = multer({
   storage: multer.memoryStorage(),
