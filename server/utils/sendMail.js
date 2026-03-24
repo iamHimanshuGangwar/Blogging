@@ -1,22 +1,27 @@
 import nodemailer from "nodemailer";
 
 export const sendOTP = async (email, otp) => {
-  if (!process.env.MAIL_USER || !process.env.MAIL_PASS) {
+  const mailUser = process.env.MAIL_USER || process.env.SMTP_USER;
+  const mailPass = process.env.MAIL_PASS || process.env.SMTP_PASSWORD;
+
+  if (!mailUser || !mailPass) {
     if (process.env.BYPASS_EMAIL_OTP === 'true') {
-      console.warn('MAIL_USER or MAIL_PASS missing, but BYPASS_EMAIL_OTP=true, skipping email send.');
+      console.warn('MAIL_USER/MAIL_PASS or SMTP_USER/SMTP_PASSWORD missing, but BYPASS_EMAIL_OTP=true, skipping email send.');
       return;
     }
-    throw new Error('MAIL_USER or MAIL_PASS not configured (needed for email OTP).');
+    throw new Error('MAIL_USER/MAIL_PASS or SMTP_USER/SMTP_PASSWORD not configured (needed for email OTP).');
   }
 
+  const fromAddress = process.env.MAIL_FROM || process.env.SMTP_FROM || `${process.env.APP_NAME || 'No Reply'} <${mailUser}>`;
+
   const transportsToTry = [
-    // SMTPS (implicit TLS) -- sometimes blocked by network
-    { service: "gmail", secure: true, port: 465 },
-    // Submission (STARTTLS) -- often more reliable
-    { host: "smtp.gmail.com", port: 587, secure: false },
+    // if using Gmail, try native service first
+    { service: 'gmail', secure: true, port: 465 },
+    // generic SMTP fallback
+    { host: process.env.SMTP_HOST || 'smtp.gmail.com', port: Number(process.env.SMTP_PORT || 587), secure: !!process.env.SMTP_SECURE },
   ];
   const message = {
-    from: `"Auth System" <${process.env.MAIL_USER}>`,
+    from: fromAddress,
     to: email,
     subject: "Your OTP Verification Code",
     html: `
@@ -67,11 +72,17 @@ export const sendOTP = async (email, otp) => {
 };
 
 export const verifyTransporter = async () => {
+  const mailUser = process.env.MAIL_USER || process.env.SMTP_USER;
+  const mailPass = process.env.MAIL_PASS || process.env.SMTP_PASSWORD;
+
   const transporter = nodemailer.createTransport({
-    service: "gmail",
+    service: process.env.SMTP_SERVICE || 'gmail',
+    host: process.env.SMTP_HOST || 'smtp.gmail.com',
+    port: Number(process.env.SMTP_PORT || 587),
+    secure: !!process.env.SMTP_SECURE,
     auth: {
-      user: process.env.MAIL_USER,
-      pass: process.env.MAIL_PASS,
+      user: mailUser,
+      pass: mailPass,
     },
   });
 
