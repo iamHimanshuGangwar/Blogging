@@ -6,7 +6,9 @@ import {
   generateTTS,
   generateBlogSummary,
   analyzeResume,
+  generateBlogContent,
 } from "../controllers/aiController.js";
+import auth from "../middlewares/auth.js";
 
 const router = express.Router();
 
@@ -21,7 +23,8 @@ router.post("/image/generate-image", generateImage);
 // Server-side High Quality TTS
 router.post('/tts', generateTTS);
 
-// Blog Summary Route
+// Blog Routes
 router.post('/summary', generateBlogSummary);
+router.post('/blog/generate-content', auth, generateBlogContent);
 
 export default router;

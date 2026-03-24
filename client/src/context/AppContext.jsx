@@ -45,7 +45,9 @@ export const AppProvider = ({ children }) => {
     try {
       // Use tokenRef to get the current token
       const currentToken = tokenRef.current || localStorage.getItem('token') || '';
-      const headers = currentToken ? { Authorization: currentToken } : {};
+      const authHeader = currentToken.startsWith('Bearer ') ? currentToken : `Bearer ${currentToken}`;
+      const headers = currentToken ? { Authorization: authHeader } : {};
+      
       const { data } = await axios.post("/api/auth/refresh", {}, { withCredentials: true, headers });
       if (data?.success && data?.token) {
         setAuthToken(data.token);
@@ -72,7 +74,7 @@ export const AppProvider = ({ children }) => {
       (config) => {
         const currentToken = tokenRef.current || localStorage.getItem("token");
         if (currentToken) {
-          config.headers.Authorization = currentToken;
+          config.headers.Authorization = currentToken.startsWith('Bearer ') ? currentToken : `Bearer ${currentToken}`;
         }
         return config;
       },

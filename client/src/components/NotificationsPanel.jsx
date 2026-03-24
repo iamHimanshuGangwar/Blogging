@@ -68,23 +68,6 @@ const NotificationsPanel = ({ isOpen = false, onClose = () => {} }) => {
 
   return (
     <>
-      {/* Notification Bell Icon - Fixed Position */}
-      <div className="fixed top-20 right-8 z-40">
-        <button
-          onClick={() => !isOpen && onClose()}
-          className="relative p-3 rounded-full bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition transform hover:scale-110"
-        >
-          <Bell className="w-6 h-6 text-gray-700 dark:text-gray-300" />
-
-          {/* Unread Badge */}
-          {unreadCount > 0 && (
-            <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center animate-pulse">
-              {unreadCount > 99 ? "99+" : unreadCount}
-            </div>
-          )}
-        </button>
-      </div>
-
       {/* Notifications Panel */}
       {isOpen && (
         <div className="notifications-panel">

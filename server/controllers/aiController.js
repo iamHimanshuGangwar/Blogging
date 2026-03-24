@@ -490,6 +490,119 @@ Format your response as a JSON object with this exact structure:
   }
 };
 
+// Generate Blog Content using Gemini API
+export const generateBlogContent = async (req, res) => {
+  try {
+    const { title, subTitle, category, language = 'en' } = req.body;
+
+    if (!title || !title.trim()) {
+      return res.status(400).json({ success: false, message: 'Blog title is required' });
+    }
+
+    if (!process.env.GEMINI_API_KEY) {
+      return res.status(501).json({ success: false, message: 'Gemini API not configured. Set GEMINI_API_KEY in .env.' });
+    }
+
+    const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generate";
+    
+    const blogPrompt = `You are an expert blog writer and content creator. Write a detailed, engaging, and SEO-optimized blog post based on these details:
+
+Title: ${title}
+${subTitle ? `Subtitle: ${subTitle}` : ''}
+Category: ${category || 'Technology'}
+Language: ${language === 'hi' ? 'Hindi' : 'English'}
+
+Please write a comprehensive blog post with the following structure:
+
+1. **Introduction Paragraph** - Hook the reader with an engaging introduction
+2. **Key Points** - At least 3-4 main sections with detailed explanations
+3. **Practical Examples** - Include real-world examples or case studies
+4. **Tips & Best Practices** - Actionable advice related to the topic
+5. **Conclusion** - Summarize key takeaways and call-to-action
+
+Guidelines:
+- Write in ${language === 'hi' ? 'Hindi' : 'English'} language
+- Use clear, conversational tone appropriate for a blog
+- Include proper formatting with headers and paragraphs
+- Make it original and unique
+- Target length: 1500-2000 words
+- Include relevant HTML tags for emphasis (use <h2>, <h3>, <p>, <strong>, <em>, <ul>, <li> tags)
+- Do NOT use <h1> tags
+- Ensure content flows naturally
+
+Write ONLY the blog content, no introduction or metadata.`;
+
+    const response = await axios.post(
+      GEMINI_API_URL,
+      {
+        prompt: {
+          text: blogPrompt,
+        },
+        temperature: 0.7,
+        top_p: 0.95,
+        top_k: 40,
+        max_output_tokens: 1500,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "x-goog-api-key": process.env.GEMINI_API_KEY,
+          // Fill in both key and bearer to maximize compatibility
+          Authorization: `Bearer ${process.env.GEMINI_API_KEY}`,
+        },
+      }
+    );
+
+    let content = "";
+
+    if (response.data?.candidates?.[0]?.content?.parts?.[0]?.text) {
+      content = response.data.candidates[0].content.parts[0].text;
+    } else if (response.data?.output?.[0]?.content?.[0]?.text) {
+      content = response.data.output[0].content[0].text;
+    } else if (typeof response.data?.text === "string") {
+      content = response.data.text;
+    } else if (response.data?.predictions?.[0]?.content) {
+      content = response.data.predictions[0].content;
+    }
+
+    if (content && content.trim()) {
+      content = content.trim();
+      return res.status(200).json({
+        success: true,
+        message: 'Blog content generated successfully',
+        content,
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: 'No content generated from Gemini API',
+      details: response.data,
+    });
+  } catch (error) {
+    console.error('Blog content generation error:', error.message);
+    console.error('Gemini error data:', error.response?.status, error.response?.data);
+
+    if (error.response?.status === 400) {
+      return res.status(400).json({ success: false, message: 'Gemini AI bad request: ' + (error.response.data?.error?.message || error.message) });
+    }
+
+    if (error.response?.status === 401) {
+      return res.status(401).json({ success: false, message: 'Invalid Gemini API key' });
+    }
+
+    if (error.response?.status === 429) {
+      return res.status(429).json({ success: false, message: 'Too many requests. Please wait a moment and try again.' });
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to generate blog content. ' + (error.response?.data?.error?.message || error.message),
+      details: error.response?.data,
+    });
+  }
+};
+
 // Helper: Parse resume feedback from text
 const parseResumeFeedback = (text) => {
   const lines = text.split('\n').filter(l => l.trim());

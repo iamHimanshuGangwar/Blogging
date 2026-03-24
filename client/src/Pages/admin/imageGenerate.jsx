@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 
-const ImageGenerator = () => {
+const ImageGenerator = ({ onImageGenerated, isEmbedded = false }) => {
   const navigate = useNavigate();
   const { axios, token } = useAppContext();
 
@@ -73,6 +73,17 @@ const ImageGenerator = () => {
       ).catch(() => {});
 
       toast.success("Image generated successfully");
+
+      // If embedded in AddBlog, convert image to File object and call callback
+      if (isEmbedded && onImageGenerated) {
+        fetch(data.imageUrl)
+          .then(res => res.blob())
+          .then(blob => {
+            const file = new File([blob], "generated-image.png", { type: "image/png" });
+            onImageGenerated(file);
+          })
+          .catch(err => console.error("Failed to convert image to file:", err));
+      }
     } catch (err) {
       toast.error(err.response?.data?.message || err.message);
     } finally {
@@ -80,7 +91,72 @@ const ImageGenerator = () => {
     }
   };
 
-  return (
+  return isEmbedded ? (
+    <div className="space-y-4">
+      <div className="space-y-3">
+        <input
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+          placeholder="A cyberpunk city at night, ultra realistic"
+          className="w-full px-4 py-2 rounded-lg border dark:border-gray-600 bg-gray-50 dark:bg-gray-900 focus:ring-2 focus:ring-purple-500 text-sm"
+        />
+
+        <div className="grid sm:grid-cols-3 gap-2">
+          <select
+            value={style}
+            onChange={(e) => setStyle(e.target.value)}
+            className="p-2 rounded-lg border dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-sm"
+          >
+            <option value="realistic">Realistic</option>
+            <option value="anime">Anime</option>
+            <option value="logo">Logo</option>
+          </select>
+
+          <select
+            value={resolution}
+            onChange={(e) => setResolution(e.target.value)}
+            className="p-2 rounded-lg border dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-sm"
+          >
+            <option value="512x512">512 × 512</option>
+            <option value="1024x1024">1024 × 1024</option>
+            <option value="2048x2048">2048 × 2048</option>
+          </select>
+
+          <button
+            type="button"
+            onClick={handleGenerate}
+            disabled={loading}
+            className="bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium flex items-center justify-center gap-1 text-sm disabled:opacity-60"
+          >
+            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <ImageIcon className="w-4 h-4" />}
+            {loading ? "Creating…" : "Generate"}
+          </button>
+        </div>
+      </div>
+
+      <div className="relative aspect-square rounded-lg border border-dashed bg-gray-100 dark:bg-gray-900 flex items-center justify-center overflow-hidden group max-w-xs">
+        {loading ? (
+          <Loader2 className="w-8 h-8 animate-spin text-purple-500" />
+        ) : image ? (
+          <>
+            <img src={image} alt="Generated" className="object-contain w-full h-full" />
+            <a
+              href={image}
+              download="ai-image.png"
+              className="absolute bottom-2 right-2 p-1.5 bg-white dark:bg-gray-800 rounded-full shadow opacity-0 group-hover:opacity-100"
+            >
+              <Download className="w-4 h-4" />
+            </a>
+          </>
+        ) : (
+          <div className="text-gray-400 text-center text-xs">
+            <ImageIcon size={24} className="mx-auto mb-2 opacity-30" />
+            No image yet
+          </div>
+        )}
+      </div>
+    </div>
+  ) : (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
       <div className="max-w-5xl mx-auto bg-white dark:bg-gray-800 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 p-8">
 

@@ -24,7 +24,7 @@ import 'quill/dist/quill.snow.css'
 import { Toaster } from 'react-hot-toast'
 import toast from 'react-hot-toast'
 import { useAppContext } from './context/AppContext'
-import { NotificationsProvider, useNotificationPolling } from './context/NotificationsContext'
+import { useNotificationPolling } from './context/NotificationsContext'
 import NotificationsPanel from './components/NotificationsPanel'
 
 // Protected Route - Regular Users
@@ -48,19 +48,22 @@ const AdminProtectedRoute = ({ isAuthenticated, isAdmin, children }) => {
 }
 
 const App = () => {
-  const { token, user } = useAppContext();
-  const isAdmin = user?.isAdmin || false;
-
   return (
-    <NotificationsProvider>
-      <AppContent token={token} isAdmin={isAdmin} />
-    </NotificationsProvider>
+    <AppContent />
   )
 }
 
-const AppContent = ({ token, isAdmin }) => {
+const AppContent = () => {
+  const context = useAppContext();
+  
+  // Handle case where context is not yet initialized
+  if (!context) {
+    return <div>Loading...</div>;
+  }
+
+  const { token, user, axios } = context;
+  const isAdmin = user?.isAdmin || false;
   const [isNotificationsOpen, setIsNotificationsOpen] = React.useState(false);
-  const { axios } = useAppContext();
 
   // Setup notification polling from backend
   useNotificationPolling(axios, 30000); // Poll every 30 seconds

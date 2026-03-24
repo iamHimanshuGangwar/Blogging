@@ -25,17 +25,16 @@ const LOCATION_COUNTRY_MAP = {
   visakhapatnam: "in",
   nagpur: "in",
   bhopal: "in",
-  chandigarh: "in",
   gurgaon: "in",
   gurugram: "in",
-  
+
   // UK
   london: "gb",
   manchester: "gb",
   birmingham: "gb",
   leeds: "gb",
   glasgow: "gb",
-  
+
   // USA
   "new york": "us",
   "san francisco": "us",
@@ -43,17 +42,39 @@ const LOCATION_COUNTRY_MAP = {
   chicago: "us",
   seattle: "us",
   boston: "us",
-  
-  // Other countries
+
+  // Canada & Australia
   toronto: "ca",
   vancouver: "ca",
   sydney: "au",
 };
 
+const COUNTRY_ALIASES = {
+  india: "in",
+  "united states": "us",
+  usa: "us",
+  america: "us",
+  "united kingdom": "gb",
+  uk: "gb",
+  england: "gb",
+  canada: "ca",
+  australia: "au",
+};
+
 const getCountryCode = (location) => {
-  if (!location) return "gb";
+  if (!location || !location.trim()) return "gb";
   const normalized = location.toLowerCase().trim();
-  return LOCATION_COUNTRY_MAP[normalized] || "in"; // Default to India for Indian cities
+
+  if (LOCATION_COUNTRY_MAP[normalized]) return LOCATION_COUNTRY_MAP[normalized];
+  if (COUNTRY_ALIASES[normalized]) return COUNTRY_ALIASES[normalized];
+
+  const firstToken = normalized.split(/[,\s]+/)[0];
+  if (LOCATION_COUNTRY_MAP[firstToken]) return LOCATION_COUNTRY_MAP[firstToken];
+  if (COUNTRY_ALIASES[firstToken]) return COUNTRY_ALIASES[firstToken];
+
+  if (/^[a-z]{2}$/.test(firstToken)) return firstToken;
+
+  return "gb";
 };
 
 const ADZUNA_API_HOST = "https://api.adzuna.com/v1/api/jobs";
@@ -87,25 +108,44 @@ export const searchJobs = async (req, res) => {
 
     // Get country code from location name
     const country = getCountryCode(location);
-    let url = `${ADZUNA_API_HOST}/${country}/search/${page}?app_id=${ADZUNA_API_ID}&app_key=${ADZUNA_API_KEY}&results_per_page=${results_per_page}&what=${encodeURIComponent(
-      query
-    )}`;
 
-    // Add optional parameters
-    if (location) url += `&where=${encodeURIComponent(location)}`;
-    if (job_type) url += `&job_type=${encodeURIComponent(job_type)}`;
-    if (salary_min) url += `&salary_min=${salary_min}`;
-    if (salary_max) url += `&salary_max=${salary_max}`;
-    if (full_time) url += `&full_time=${full_time}`;
+    const buildUrl = (countryCode) => {
+      let targetUrl = `${ADZUNA_API_HOST}/${countryCode}/search/${page}?app_id=${ADZUNA_API_ID}&app_key=${ADZUNA_API_KEY}&results_per_page=${results_per_page}&what=${encodeURIComponent(
+        query
+      )}`;
 
-    console.log("[ADZUNA] Searching jobs with URL:", url.split("app_key")[0] + "app_key=***");
+      if (location) targetUrl += `&where=${encodeURIComponent(location)}`;
+      if (job_type) targetUrl += `&job_type=${encodeURIComponent(job_type)}`;
+      if (salary_min) targetUrl += `&salary_min=${salary_min}`;
+      if (salary_max) targetUrl += `&salary_max=${salary_max}`;
+      if (full_time) targetUrl += `&full_time=${full_time}`;
 
-    const response = await axios.get(url, {
-      timeout: 10000,
-      headers: {
-        "User-Agent": "AiBlog-JobPortal/1.0",
-      },
-    });
+      return targetUrl;
+    };
+
+    const openAdzuna = async (countryCode) => {
+      const tryUrl = buildUrl(countryCode);
+      console.log("[ADZUNA] Searching jobs with URL:", tryUrl.split("app_key")[0] + "app_key=***");
+
+      return await axios.get(tryUrl, {
+        timeout: 10000,
+        headers: {
+          "User-Agent": "AiBlog-JobPortal/1.0",
+        },
+      });
+    };
+
+    let response = await openAdzuna(country);
+
+    // Keep location specific: do not override user location with unrelated fallback country
+    // (prevents same London jobs for all locations). If no results, we return zero items.
+    // Optionally fallback to same country variable query, not random. This keeps behavior expected.
+    if (!response?.data?.results) {
+      return res.status(500).json({
+        success: false,
+        message: "No results from Adzuna",
+      });
+    }
 
     if (response.data) {
       // Transform Adzuna results to match our format

@@ -6,6 +6,7 @@ import App from "./App.jsx";
 import "./index.css"; // Tailwind + global styles
 import { AppProvider } from "./context/AppContext.jsx";
 import { AuthProvider } from "./context/AuthContext.jsx";
+import { NotificationsProvider } from "./context/NotificationsContext.jsx";
 import AuthModal from "./components/AuthModal.jsx";
 
 const root = createRoot(document.getElementById("root"));
@@ -14,10 +15,12 @@ root.render(
   <React.StrictMode>
     <AuthProvider>
       <AppProvider>
-        <BrowserRouter>
-          <App />
-          <AuthModal /> {/* Listens to AuthContext for login/signup/OTP */}
-        </BrowserRouter>
+        <NotificationsProvider>
+          <BrowserRouter>
+            <App />
+            <AuthModal /> {/* Listens to AuthContext for login/signup/OTP */}
+          </BrowserRouter>
+        </NotificationsProvider>
       </AppProvider>
     </AuthProvider>
   </React.StrictMode>

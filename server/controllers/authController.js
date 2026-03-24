@@ -80,6 +80,37 @@ export const register = async (req, res) => {
       await sendOTP(emailTrim, otp);
       res.status(201).json({ success: true, message: "OTP sent to your email.", userId: user._id });
     } catch (mailErr) {
+      const isAuthError = /Invalid login|BadCredentials|Invalid user|EAUTH/.test(mailErr && mailErr.message ? mailErr.message : '');
+      const clientMsg = isAuthError
+        ? 'Could not send OTP: mail service authentication failed. Please check MAIL_USER and MAIL_PASS (use App Password or OAuth2 for Gmail).'
+        : 'Could not send OTP. Please try again later.';
+
+      console.error('sendOTP failed:', mailErr && mailErr.message ? mailErr.message : mailErr);
+
+      if (process.env.BYPASS_EMAIL_OTP === 'true') {
+        // Enable a local/dev fallback flow to allow signup without OTP verification
+        console.warn('BYPASS_EMAIL_OTP is enabled: verifying User automatically in development mode.');
+
+        if (isNewUser) {
+          user.isVerified = true;
+          user.otp = '';
+          user.otpExpires = null;
+          await user.save();
+        } else if (user.__prev) {
+          user.isVerified = true;
+          user.otp = '';
+          user.otpExpires = null;
+          delete user.__prev;
+          await user.save();
+        }
+
+        return res.status(201).json({
+          success: true,
+          message: 'OTP skipped via BYPASS_EMAIL_OTP. Signup completed.',
+          userId: user._id,
+        });
+      }
+
       // If email sending fails, roll back changes for new users
       if (isNewUser) {
         await User.findByIdAndDelete(user._id);
@@ -93,13 +124,6 @@ export const register = async (req, res) => {
         delete user.__prev;
         await user.save();
       }
-
-      console.error('sendOTP failed, changes rolled back:', mailErr && mailErr.message ? mailErr.message : mailErr);
-      // Provide a helpful message if this appears to be SMTP auth error
-      const isAuthError = /Invalid login|BadCredentials|Invalid user|EAUTH/.test(mailErr && mailErr.message ? mailErr.message : '');
-      const clientMsg = isAuthError
-        ? 'Could not send OTP: mail service authentication failed. Please check MAIL_USER and MAIL_PASS (use App Password or OAuth2 for Gmail).'
-        : 'Could not send OTP. Please try again later.';
 
       return res.status(500).json({ success: false, message: clientMsg });
     }

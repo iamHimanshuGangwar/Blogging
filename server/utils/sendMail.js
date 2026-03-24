@@ -1,6 +1,14 @@
 import nodemailer from "nodemailer";
 
 export const sendOTP = async (email, otp) => {
+  if (!process.env.MAIL_USER || !process.env.MAIL_PASS) {
+    if (process.env.BYPASS_EMAIL_OTP === 'true') {
+      console.warn('MAIL_USER or MAIL_PASS missing, but BYPASS_EMAIL_OTP=true, skipping email send.');
+      return;
+    }
+    throw new Error('MAIL_USER or MAIL_PASS not configured (needed for email OTP).');
+  }
+
   const transportsToTry = [
     // SMTPS (implicit TLS) -- sometimes blocked by network
     { service: "gmail", secure: true, port: 465 },

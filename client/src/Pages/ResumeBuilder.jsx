@@ -322,6 +322,17 @@ const ResumeBuilder = () => {
     projects: [{ title: "", description: "", link: "" }],
   });
 
+  // Questionnaire states
+  const [experienceLevel, setExperienceLevel] = useState("");
+  const [isStudent, setIsStudent] = useState("");
+  const [educationLevel, setEducationLevel] = useState("");
+  const [showQuestionnaire, setShowQuestionnaire] = useState(false);
+  const [showTemplateFilters, setShowTemplateFilters] = useState(false);
+
+  // Template filter states
+  const [hasPhoto, setHasPhoto] = useState(true);
+  const [columns, setColumns] = useState(1);
+
   // Load saved resume from localStorage on mount
   useEffect(() => {
     const saved = localStorage.getItem("resumeDraft");
@@ -342,12 +353,32 @@ const ResumeBuilder = () => {
       t.occupations.includes(occupation)
     );
     setFilteredTemplates(recommended.length > 0 ? recommended : TEMPLATE_DESIGNS);
+    // Show questionnaire after occupation selection
+    setShowPathContent(false);
+    setShowQuestionnaire(true);
   };
 
   // Handle style selection
   const handleStyleSelect = (styleId) => {
     setSelectedStyle(styleId);
     setTemplate(styleId);
+  };
+
+  // Handle questionnaire completion
+  const handleQuestionnaireComplete = () => {
+    if (!experienceLevel || isStudent === "" || !educationLevel) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+    setShowQuestionnaire(false);
+    setShowTemplateFilters(true);
+  };
+
+  // Handle template filters completion
+  const handleFiltersComplete = () => {
+    setShowTemplateFilters(false);
+    setShowPathContent(true);
+    setSelectedPath("style");
   };
 
   // Handle resume upload
@@ -401,11 +432,11 @@ const ResumeBuilder = () => {
           resolve(content);
         } else if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
           // For PDF, we'd need pdf-parse library - for now return indication
-          toast.info("PDF support requires additional setup. Please use .txt or paste content.");
+          toast("PDF support requires additional setup. Please use .txt or paste content.");
           resolve("");
         } else if (file.type.includes('word') || file.name.endsWith('.doc') || file.name.endsWith('.docx')) {
           // For DOCX, we'd need docx library - for now return indication
-          toast.info("DOCX support requires additional setup. Please use .txt or paste content.");
+          toast("DOCX support requires additional setup. Please use .txt or paste content.");
           resolve("");
         } else {
           // Try to read as text
@@ -1435,6 +1466,240 @@ const ResumeBuilder = () => {
       );
     }
 
+    // Questionnaire Page
+    if (showQuestionnaire) {
+      return (
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 py-12">
+          <div className="max-w-2xl mx-auto px-4">
+            <button
+              onClick={() => {
+                setShowQuestionnaire(false);
+                setShowPathContent(true);
+                setSelectedPath("occupation");
+                setExperienceLevel("");
+                setIsStudent("");
+                setEducationLevel("");
+              }}
+              className="flex items-center gap-2 text-blue-600 hover:text-blue-700 font-semibold mb-8"
+            >
+              <ArrowLeft size={20} /> Back
+            </button>
+
+            <div className="bg-white rounded-2xl shadow-xl p-12 space-y-12">
+              {/* Experience Level */}
+              <div className="space-y-4">
+                <div>
+                  <h2 className="text-3xl font-bold text-gray-900">How long have you been working?</h2>
+                  <p className="text-gray-600 mt-2">We'll find the best templates for your experience level.</p>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                  {["No Experience", "Less Than 3 Years", "3-5 Years", "5-10 Years", "10+ Years"].map((level) => (
+                    <button
+                      key={level}
+                      onClick={() => setExperienceLevel(level)}
+                      className={`py-3 px-4 rounded-lg border-2 font-semibold transition ${
+                        experienceLevel === level
+                          ? "border-blue-600 bg-blue-50 text-blue-600"
+                          : "border-gray-300 text-gray-700 hover:border-blue-400"
+                      }`}
+                    >
+                      {level}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Student Status */}
+              <div className="space-y-4">
+                <div>
+                  <h2 className="text-3xl font-bold text-gray-900">Are you a student?</h2>
+                </div>
+                <div className="flex gap-4">
+                  {["Yes", "No"].map((status) => (
+                    <button
+                      key={status}
+                      onClick={() => setIsStudent(status)}
+                      className={`flex-1 py-3 px-6 rounded-lg border-2 font-semibold transition ${
+                        isStudent === status
+                          ? "border-blue-600 bg-blue-50 text-blue-600"
+                          : "border-gray-300 text-gray-700 hover:border-blue-400"
+                      }`}
+                    >
+                      {status}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Education Level */}
+              <div className="space-y-4">
+                <div>
+                  <h2 className="text-3xl font-bold text-gray-900">What education level are you currently pursuing?</h2>
+                  <p className="text-gray-600 mt-2">Select the highest level you are working toward so we can organize your resume correctly.</p>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {["Secondary School", "Vocational Certificate or Diploma", "Apprenticeship or Internship Training", "Bachelor's Degree", "Master's Degree", "Doctorate or Higher"].map((education) => (
+                    <button
+                      key={education}
+                      onClick={() => setEducationLevel(education)}
+                      className={`py-3 px-4 rounded-lg border-2 font-semibold transition text-sm ${
+                        educationLevel === education
+                          ? "border-blue-600 bg-blue-50 text-blue-600"
+                          : "border-gray-300 text-gray-700 hover:border-blue-400"
+                      }`}
+                    >
+                      {education}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Continue Button */}
+              <button
+                onClick={handleQuestionnaireComplete}
+                className="w-full py-3 px-6 bg-teal-600 hover:bg-teal-700 text-white rounded-full font-bold text-lg transition"
+              >
+                Continue to Template Selection
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Template Filters Page
+    if (showTemplateFilters) {
+      return (
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 py-12">
+          <div className="max-w-6xl mx-auto px-4">
+            <button
+              onClick={() => {
+                setShowTemplateFilters(false);
+                setShowQuestionnaire(true);
+              }}
+              className="flex items-center gap-2 text-blue-600 hover:text-blue-700 font-semibold mb-8"
+            >
+              <ArrowLeft size={20} /> Back
+            </button>
+
+            <div className="bg-white rounded-2xl shadow-xl p-12">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+                {/* Left: Filters */}
+                <div className="space-y-8">
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-6">Filters</h2>
+                    <button className="text-blue-600 hover:text-blue-700 font-semibold mb-6">Clear filters</button>
+                  </div>
+
+                  {/* Headshot Filter */}
+                  <div>
+                    <h3 className="font-bold text-gray-900 mb-3 uppercase text-sm">HEADSHOT</h3>
+                    <div className="space-y-2">
+                      {["With photo", "Without photo"].map((option) => (
+                        <label key={option} className="flex items-center gap-3 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={option === "With photo" ? hasPhoto : !hasPhoto}
+                            onChange={() => option === "With photo" ? setHasPhoto(!hasPhoto) : setHasPhoto(true)}
+                            className="w-4 h-4 rounded"
+                          />
+                          <span className="text-gray-700">{option}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Columns Filter */}
+                  <div>
+                    <h3 className="font-bold text-gray-900 mb-3 uppercase text-sm">COLUMNS</h3>
+                    <div className="space-y-2">
+                      {[1, 2].map((col) => (
+                        <label key={col} className="flex items-center gap-3 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={columns === col}
+                            onChange={() => setColumns(col)}
+                            className="w-4 h-4 rounded"
+                          />
+                          <span className="text-gray-700">{col} column{col > 1 ? 's' : ''}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Occupation Display */}
+                  <div>
+                    <h3 className="font-bold text-gray-900 mb-3 uppercase text-sm">OCCUPATION</h3>
+                    <div className="text-gray-700 font-semibold">{selectedOccupation}</div>
+                    <button
+                      onClick={() => {
+                        setShowTemplateFilters(false);
+                        setShowQuestionnaire(false);
+                        setShowPathContent(true);
+                        setSelectedPath("occupation");
+                      }}
+                      className="text-blue-600 hover:text-blue-700 font-semibold text-sm mt-2"
+                    >
+                      Change
+                    </button>
+                  </div>
+                </div>
+
+                {/* Right: Template Preview */}
+                <div className="lg:col-span-2 space-y-6">
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-2">Best templates for {selectedOccupation}</h2>
+                    <p className="text-gray-600">Industry-proven designs for your experience. Swap styles anytime.</p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {filteredTemplates.slice(0, 3).map((t) => (
+                      <button
+                        key={t.id}
+                        onClick={() => {
+                          handleStyleSelect(t.id);
+                          handleFiltersComplete();
+                        }}
+                        className="p-6 rounded-lg border-2 border-gray-200 hover:border-yellow-400 transition bg-gray-50"
+                      >
+                        <div className="mb-4 bg-gray-100 h-40 rounded flex items-center justify-center text-4xl">
+                          {t.preview}
+                        </div>
+                        <h4 className="font-bold text-gray-900">{t.name}</h4>
+                        <p className="text-xs text-gray-600 mt-1">{t.description}</p>
+                        <div className="mt-3 inline-block px-3 py-1 bg-yellow-400 text-gray-900 rounded text-xs font-bold">
+                          RECOMMENDED
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Color palette */}
+                  <div className="flex gap-2 flex-wrap">
+                    {["#000000", "#4CAF50", "#8B3A3A", "#1E3A8A", "#808080", "#003366"].map((color) => (
+                      <button
+                        key={color}
+                        className="w-10 h-10 rounded-full border-2 border-gray-300 hover:border-gray-600 transition"
+                        style={{ backgroundColor: color }}
+                        title={color}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Info message */}
+              <div className="mt-8 p-4 bg-gray-50 rounded-lg text-center">
+                <p className="text-gray-700">
+                  If you're not sure which template you want right now, you can choose one later.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     if (showPathContent && selectedPath === "occupation") {
       return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 py-12">
@@ -1685,8 +1950,12 @@ const ResumeBuilder = () => {
 
               <button
                 onClick={() => {
-                  setSelectedPath("quick");
+                  if (!selectedStyle) {
+                    toast.error("Please select a template design");
+                    return;
+                  }
                   setShowPathContent(true);
+                  setSelectedPath("occupation");
                 }}
                 className="w-full py-4 px-6 bg-teal-600 hover:bg-teal-700 text-white rounded-full font-bold text-lg transition shadow-lg"
               >
@@ -1705,64 +1974,51 @@ const ResumeBuilder = () => {
               </p>
             </div>
 
-            {/* Right Side - Resume Preview */}
-            <div className="relative">
-              <div className="bg-white rounded-2xl shadow-2xl p-6 border-4 border-yellow-400 transform -rotate-2">
-                <div className="absolute -top-8 -right-8 w-32 h-32 bg-yellow-300 rounded-full opacity-60 pointer-events-none" />
-                
-                {/* Resume Template Preview */}
-                <div className="bg-gray-50 p-6 space-y-4 text-xs">
-                  <div>
-                    <h2 className="text-xl font-bold text-gray-900">OMAR DAHAN</h2>
-                    <p className="text-gray-600">REGISTERED NURSE | HOSPITAL CARE | PATIENT ADVOCACY | CARE INFO@DOMAIN.COM</p>
-                  </div>
+            {/* Right Side - Template Previews */}
+            <div className="space-y-6">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">Choose Your Template Design</h2>
+                <p className="text-gray-600">Browse our collection of professional resume templates</p>
+              </div>
 
-                  <div className="space-y-2">
-                    <h3 className="font-bold text-gray-900 uppercase">Professional Summary</h3>
-                    <p className="text-gray-700 text-xs leading-relaxed">
-                      Compassionate and results-driven Registered Nurse with 8 years of critical care, palliative, and patient education. Proven track record...
-                    </p>
-                  </div>
-
-                  <div className="space-y-2">
-                    <h3 className="font-bold text-gray-900 uppercase">Work History</h3>
-                    <div className="space-y-1">
-                      <p className="font-semibold text-gray-900">Registered Nurse | Harborside Hospital</p>
-                      <p className="text-gray-600">Managed care for 20 patients daily</p>
-                      <ul className="list-disc ml-4 text-gray-700 space-y-1">
-                        <li>Implemented patient education...</li>
-                        <li>Collaborated with cross-functional teams...</li>
-                      </ul>
+              {/* Template Grid */}
+              <div className="grid grid-cols-2 gap-4">
+                {TEMPLATE_DESIGNS.slice(0, 4).map((template) => (
+                  <button
+                    key={template.id}
+                    onClick={() => {
+                      setSelectedStyle(template.id);
+                      setTemplate(template.id);
+                      toast.success(`${template.name} template selected!`);
+                    }}
+                    className={`relative p-4 rounded-xl border-2 transition transform hover:scale-105 ${
+                      selectedStyle === template.id
+                        ? "border-teal-600 bg-teal-50 shadow-lg"
+                        : "border-gray-200 bg-white hover:border-teal-400 hover:shadow-md"
+                    }`}
+                  >
+                    {/* Template Preview */}
+                    <div className="bg-gray-100 h-32 rounded-lg flex items-center justify-center mb-3">
+                      <span className="text-4xl">{template.preview}</span>
                     </div>
-                  </div>
+                    <h3 className="font-bold text-gray-900 text-sm">{template.name}</h3>
+                    <p className="text-xs text-gray-600 mt-1">{template.description}</p>
 
-                  <div className="space-y-2">
-                    <h3 className="font-bold text-gray-900 uppercase">Education</h3>
-                    <p className="font-semibold text-gray-900">Master of Science in Nursing - Advanced Practice Nursing</p>
-                    <p className="text-gray-600">University of Colorado, Denver, Colorado</p>
-                  </div>
+                    {/* Selected Badge */}
+                    {selectedStyle === template.id && (
+                      <div className="absolute top-2 right-2 bg-teal-600 text-white px-2 py-1 rounded-lg text-xs font-bold">
+                        ✓ Selected
+                      </div>
+                    )}
+                  </button>
+                ))}
+              </div>
 
-                  <div className="absolute top-6 right-6 bg-white border-2 border-gray-300 rounded-lg p-2 text-xs">
-                    <p className="font-bold mb-2">Print</p>
-                    <div className="space-y-1">
-                      <label className="flex items-center gap-2 text-gray-700">
-                        <input type="radio" className="w-3 h-3" defaultChecked />
-                        <span>Adobe PDF (.pdf)</span>
-                      </label>
-                      <label className="flex items-center gap-2 text-gray-700">
-                        <input type="radio" className="w-3 h-3" />
-                        <span>MS Word Document (.docx)</span>
-                      </label>
-                      <label className="flex items-center gap-2 text-gray-700">
-                        <input type="radio" className="w-3 h-3" />
-                        <span>Plain Text (.txt)</span>
-                      </label>
-                    </div>
-                    <button className="mt-2 text-blue-600 font-semibold text-xs hover:underline">
-                      Choose your format
-                    </button>
-                  </div>
-                </div>
+              {/* Template Info */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <p className="text-sm text-gray-700">
+                  <span className="font-semibold">Pro Tip:</span> You can change your template design anytime during the building process.
+                </p>
               </div>
             </div>
           </div>
@@ -1926,18 +2182,35 @@ const ResumeBuilder = () => {
             >
               <ArrowLeft size={24} className="text-blue-600" />
             </button>
-          <div>
+          <div className="flex-1">
             <h1 className="text-3xl font-bold text-gray-900">Resume Builder</h1>
             <p className="text-sm text-gray-600">
               {selectedPath === "upload" && "📤 Building resume from your uploaded file"}
-              {selectedPath === "occupation" && "💼 Customizing for your occupation"}
+              {selectedPath === "occupation" && `💼 Customizing for ${selectedOccupation}`}
               {selectedPath === "style" && "🎨 Choosing template by style"}
               {selectedPath === "quick" && "⚡ Quick resume builder"}
               <span className="ml-4 text-blue-600">Step {step + 1} of {steps.length}</span>
             </p>
           </div>
+
+          {/* Template Switcher */}
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-semibold text-gray-700">Template:</span>
+            <select
+              value={template}
+              onChange={(e) => setTemplate(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-900 bg-white hover:border-blue-400 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition"
+            >
+              {TEMPLATE_DESIGNS.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
           {autoSave && (
-            <div className="ml-auto flex items-center gap-2 px-4 py-2 bg-green-50 border border-green-200 text-green-700 rounded-lg text-sm">
+            <div className="ml-4 flex items-center gap-2 px-4 py-2 bg-green-50 border border-green-200 text-green-700 rounded-lg text-sm">
               <Save size={16} /> Auto-saved
             </div>
           )}

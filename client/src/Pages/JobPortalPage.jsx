@@ -10,6 +10,7 @@ import {
   Loader,
   Briefcase,
   ChevronDown,
+  Sparkles,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -21,6 +22,7 @@ import JobCard from "../components/job-portal/JobCard";
 import { IndiaJobsService } from "../utils/IndiaJobsService";
 import JobDetailsModal from "../components/job-portal/JobDetailsModal";
 import AdzunaRealTimeSearch from "../components/job-portal/AdzunaRealTimeSearch";
+import { GeminiAIService } from "../utils/GeminiAIService";
 /**
  * Complete Job Portal Page
  * Displays job listings with search, filters, and job cards
@@ -28,7 +30,7 @@ import AdzunaRealTimeSearch from "../components/job-portal/AdzunaRealTimeSearch"
  */
 const JobPortalPage = () => {
   const navigate = useNavigate();
-  const { axios } = useAppContext();
+  const { axios, user } = useAppContext();
 
   // State Management
   const [jobs, setJobs] = useState([]);
@@ -49,6 +51,10 @@ const JobPortalPage = () => {
   const [myApplicationCount, setMyApplicationCount] = useState(0);
   const [selectedJob, setSelectedJob] = useState(null);
   const [showJobPortalLogin, setShowJobPortalLogin] = useState(false);
+  const [showAIModal, setShowAIModal] = useState(false);
+  const [aiSuggestions, setAiSuggestions] = useState(null);
+  const [isLoadingAI, setIsLoadingAI] = useState(false);
+  const [tailorJobs, setTailorJobs] = useState(null);
   const [notifications, setNotifications] = useState([
     {
       type: "success",
@@ -224,8 +230,38 @@ const JobPortalPage = () => {
   };
 
   // Handle Resume Tailor
-  const handleResumeTailor = (job) => {
-    toast.info("AI Resume Tailor - Coming Soon!");
+  const handleResumeTailor = async (job) => {
+    try {
+      const currentUser = jobPortalUser || user;
+      if (!currentUser || !currentUser.resume) {
+        toast.error("Please upload your resume first!");
+        return;
+      }
+
+      setTailorJobs(job);
+      setIsLoadingAI(true);
+
+      const tailorPrompt = {
+        jobTitle: job.jobTitle || job.title || "Position",
+        jobDescription: job.jobDescription || job.description || "",
+        skills: job.skills || [],
+        requirements: job.requirements || [],
+      };
+
+      const suggestions = await GeminiAIService.tailorResumeForJob(
+        user.resume,
+        tailorPrompt
+      );
+
+      setAiSuggestions(suggestions);
+      setShowAIModal(true);
+      toast.success("AI suggestions generated!");
+    } catch (error) {
+      console.error("Error tailoring resume:", error);
+      toast.error("Failed to generate AI suggestions");
+    } finally {
+      setIsLoadingAI(false);
+    }
   };
 
   // Handle Menu Click
@@ -367,84 +403,6 @@ const JobPortalPage = () => {
               }}
             />
 
-            {/* Search and Filters */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-              <div className="space-y-4">
-                {/* Search Bar */}
-                <div className="relative">
-                  <Search className="absolute left-4 top-3.5 text-gray-400 w-5 h-5" />
-                  <input
-                    type="text"
-                    placeholder="Search job title"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-
-                {/* Filters */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  {/* Location */}
-                  <div className="relative">
-                    <MapPin className="absolute left-4 top-3.5 text-gray-400 w-5 h-5" />
-                    <input
-                      type="text"
-                      placeholder="Location"
-                      value={locationFilter}
-                      onChange={(e) => setLocationFilter(e.target.value)}
-                      className="w-full pl-12 pr-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-
-                  {/* Industries */}
-                  <select
-                    value={industryFilter}
-                    onChange={(e) => setIndustryFilter(e.target.value)}
-                    className="px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    {industries.map((industry) => (
-                      <option key={industry} value={industry}>
-                        {industry}
-                      </option>
-                    ))}
-                  </select>
-
-                  {/* Job Type */}
-                  <select
-                    value={jobTypeFilter}
-                    onChange={(e) => setJobTypeFilter(e.target.value)}
-                    className="px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    {jobTypes.map((type) => (
-                      <option key={type} value={type}>
-                        {type === "All" ? "All Job Types" : type}
-                      </option>
-                    ))}
-                  </select>
-
-                  {/* Advanced Filters */}
-                  <button className="px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-600 transition flex items-center justify-center gap-2 font-medium">
-                    <Filter size={18} />
-                    More Filters
-                  </button>
-                </div>
-              </div>
-
-              {/* Results Info */}
-              <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
-                <p className="text-gray-700 dark:text-gray-300 font-semibold">
-                  Found <span className="text-blue-600">{filteredJobs.length}</span> job
-                  {filteredJobs.length !== 1 ? "s" : ""}
-                </p>
-                <select className="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  <option>Most Recent</option>
-                  <option>Best Match</option>
-                  <option>Salary: High to Low</option>
-                  <option>Salary: Low to High</option>
-                </select>
-              </div>
-            </div>
-
             {/* Job Cards Grid */}
             {filteredJobs.length === 0 ? (
               <div className="text-center py-16">
@@ -480,6 +438,140 @@ const JobPortalPage = () => {
             onApply={handleApply}
             onTailor={handleResumeTailor}
           />
+        )}
+
+        {/* AI Resume Tailor Modal */}
+        {showAIModal && aiSuggestions && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+              {/* Modal Header */}
+              <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 border-b">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Sparkles className="w-6 h-6" />
+                    <h2 className="text-2xl font-bold">AI Resume Suggestions</h2>
+                  </div>
+                  <button
+                    onClick={() => setShowAIModal(false)}
+                    className="text-white hover:bg-white/20 p-2 rounded transition"
+                  >
+                    <X className="w-6 h-6" />
+                  </button>
+                </div>
+                {tailorJobs && (
+                  <p className="text-blue-100 mt-2">For: {tailorJobs.jobTitle || tailorJobs.title}</p>
+                )}
+              </div>
+
+              {/* Modal Content */}
+              <div className="p-6 space-y-6">
+                {/* Summary Section */}
+                {aiSuggestions.summary && (
+                  <div className="bg-blue-50 border-l-4 border-blue-600 p-4 rounded">
+                    <h3 className="font-bold text-blue-900 mb-2">AI Analysis Summary</h3>
+                    <p className="text-gray-700">{aiSuggestions.summary}</p>
+                  </div>
+                )}
+
+                {/* Key Skills to Add */}
+                {aiSuggestions.keySkillsToAdd && aiSuggestions.keySkillsToAdd.length > 0 && (
+                  <div>
+                    <h3 className="font-bold text-lg text-gray-800 mb-3">🎯 Key Skills to Add</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {aiSuggestions.keySkillsToAdd.map((skill, idx) => (
+                        <div
+                          key={idx}
+                          className="bg-gradient-to-r from-green-100 to-green-50 border border-green-300 p-3 rounded-lg flex items-start gap-2"
+                        >
+                          <span className="text-green-600 font-bold mt-1">✓</span>
+                          <div>
+                            <p className="font-semibold text-green-900">{skill.skill}</p>
+                            {skill.reason && (
+                              <p className="text-sm text-green-700">{skill.reason}</p>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Suggested Enhancements */}
+                {aiSuggestions.suggestedEnhancements && aiSuggestions.suggestedEnhancements.length > 0 && (
+                  <div>
+                    <h3 className="font-bold text-lg text-gray-800 mb-3">✨ Suggested Enhancements</h3>
+                    <div className="space-y-3">
+                      {aiSuggestions.suggestedEnhancements.map((enhancement, idx) => (
+                        <div
+                          key={idx}
+                          className="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded"
+                        >
+                          <p className="font-semibold text-yellow-900 mb-1">{enhancement.section}</p>
+                          <p className="text-gray-700">{enhancement.suggestion}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Matching Score */}
+                {aiSuggestions.matchPercentage && (
+                  <div className="bg-gradient-to-r from-purple-100 to-pink-100 p-4 rounded-lg">
+                    <p className="text-sm text-gray-700 mb-2">Resume Match Score</p>
+                    <div className="flex items-center gap-3">
+                      <div className="flex-1 bg-gray-300 rounded-full h-4 overflow-hidden">
+                        <div
+                          className="bg-gradient-to-r from-green-500 to-blue-500 h-full transition-all"
+                          style={{ width: `${aiSuggestions.matchPercentage}%` }}
+                        />
+                      </div>
+                      <span className="font-bold text-lg text-gray-800">
+                        {Math.round(aiSuggestions.matchPercentage)}%
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Action Buttons */}
+                <div className="flex gap-3 pt-4 border-t">
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(JSON.stringify(aiSuggestions, null, 2));
+                      toast.success("Suggestions copied to clipboard!");
+                    }}
+                    className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition font-semibold"
+                  >
+                    Copy Suggestions
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowAIModal(false);
+                      handleApply(tailorJobs);
+                    }}
+                    className="flex-1 px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition font-semibold"
+                  >
+                    Apply Now
+                  </button>
+                  <button
+                    onClick={() => setShowAIModal(false)}
+                    className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition font-semibold"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Loading Modal */}
+        {isLoadingAI && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-8 flex flex-col items-center gap-4">
+              <Loader className="w-8 h-8 text-blue-600 animate-spin" />
+              <p className="text-gray-700 font-semibold">Generating AI suggestions...</p>
+            </div>
+          </div>
         )}
       </div>
     </div>

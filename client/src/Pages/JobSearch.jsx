@@ -33,6 +33,7 @@ import PostJobForm from "../components/job-portal/PostJobForm";
 import EnhancedJobSidebar from "../components/job-portal/EnhancedJobSidebar";
 import { Menu } from "lucide-react";
 import { AdzunaService } from "../utils/AdzunaService";
+import { GeminiAIService } from "../utils/GeminiAIService";
 
 const JobSearchPage = () => {
   const navigate = useNavigate();
@@ -88,6 +89,12 @@ const JobSearchPage = () => {
   });
   const [showSettings, setShowSettings] = useState(false);
   const [showPostJob, setShowPostJob] = useState(false);
+
+  // AI Resume Tailor States
+  const [tailorJob, setTailorJob] = useState(null);
+  const [showTailorModal, setShowTailorModal] = useState(false);
+  const [tailorLoading, setTailorLoading] = useState(false);
+  const [tailorSuggestions, setTailorSuggestions] = useState(null);
 
   // SEPARATE Job Portal Authentication (Independent from Blog Auth)
   const [jobPortalUser, setJobPortalUser] = useState(() => {
@@ -224,6 +231,39 @@ const JobSearchPage = () => {
   const handleViewDetails = (job) => {
     setDrawerJob(job);
     setIsDrawerOpen(true);
+  };
+
+  // NEW: AI Resume Tailor with Gemini AI Integration
+  const handleAIResumeTailor = async (job) => {
+    if (!jobPortalUser) {
+      toast.error("Please sign in to use AI Resume Tailor");
+      setShowJobPortalLogin(true);
+      return;
+    }
+
+    try {
+      setTailorJob(job);
+      setShowTailorModal(true);
+      setTailorLoading(true);
+
+      // Call Gemini AI Service to get tailored suggestions
+      const userResume = {
+        skills: resumes[0]?.skills || [],
+        experience: resumes[0]?.experience || [],
+      };
+
+      const suggestions = await GeminiAIService.tailorResumeForJob(
+        job,
+        userResume
+      );
+
+      setTailorSuggestions(suggestions);
+      setTailorLoading(false);
+    } catch (error) {
+      console.error("Error tailoring resume:", error);
+      toast.error("Failed to generate AI suggestions. Please try again.");
+      setTailorLoading(false);
+    }
   };
 
   // NEW: AI Resume Tailor - suggests bullet points based on job
@@ -606,7 +646,7 @@ const JobSearchPage = () => {
                 return (
                   <div
                     key={job._id}
-                    className="card-glass rounded-2xl breathable-padding hover:shadow-2xl transition group"
+                    className="rounded-2xl breathable-padding hover:shadow-2xl transition group bg-gradient-to-br from-slate-50/80 to-gray-50/80 dark:from-gray-900/60 dark:to-gray-800/60 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50"
                   >
                     {/* Header with Match Score */}
                     <div className="flex justify-between items-start mb-6">
@@ -703,23 +743,17 @@ const JobSearchPage = () => {
                     {/* AI Resume Tailor Hint */}
                     {!isApplied && (
                       <button
-                        onClick={() => {
-                          const suggestions = getAIResumeSuggestions(job);
-                          toast.success(
-                            <>
-                              <p className="font-semibold mb-2">💡 AI Resume Tips:</p>
-                              {suggestions.map((s, i) => (
-                                <p key={i} className="text-xs mb-1">
-                                  • {s}
-                                </p>
-                              ))}
-                            </>
-                          );
-                        }}
-                        className="w-full mt-3 py-2 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-semibold transition flex items-center justify-center gap-2 group/btn"
+                        onClick={() => handleAIResumeTailor(job)}
+                        disabled={tailorLoading}
+                        className="w-full mt-3 py-2 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-semibold transition flex items-center justify-center gap-2 group/btn disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        <Sparkles size={14} className="group-hover/btn:scale-110 transition" />
-                        AI Resume Tailor
+                        <Sparkles
+                          size={14}
+                          className={`group-hover/btn:scale-110 transition ${
+                            tailorLoading ? "animate-spin" : ""
+                          }`}
+                        />
+                        {tailorLoading ? "Generating..." : "AI Resume Tailor"}
                       </button>
                     )}
                   </div>
@@ -781,6 +815,198 @@ const JobSearchPage = () => {
           handleApplyClick(job);
         }}
       />
+
+      {/* AI Resume Tailor Modal */}
+      {showTailorModal && (
+        <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center p-4 z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto card-glass shadow-2xl">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700 sticky top-0 bg-white dark:bg-gray-800">
+              <div className="flex items-center gap-3">
+                <Sparkles className="w-6 h-6 text-amber-500" />
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                    AI Resume Tailor
+                  </h2>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    {tailorJob?.title} at {tailorJob?.company}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  setShowTailorModal(false);
+                  setTailorSuggestions(null);
+                }}
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6 space-y-6">
+              {tailorLoading ? (
+                <div className="flex flex-col items-center justify-center py-12">
+                  <Loader className="w-12 h-12 animate-spin text-blue-500 mb-4" />
+                  <p className="text-gray-600 dark:text-gray-400 font-semibold">
+                    Generating AI suggestions...
+                  </p>
+                </div>
+              ) : tailorSuggestions ? (
+                <div className="space-y-6">
+                  {/* Match Score */}
+                  <div className="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-xl border border-blue-200 dark:border-blue-700">
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                        Match Score
+                      </h3>
+                      <span className="text-3xl font-bold text-blue-600 dark:text-blue-400">
+                        {tailorSuggestions.matchScore}%
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Your resume has a {tailorSuggestions.matchScore}% match with this job
+                      posting.
+                    </p>
+                  </div>
+
+                  {/* Professional Summary */}
+                  <div>
+                    <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-3">
+                      📝 Tailored Summary
+                    </h4>
+                    <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                      <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                        {tailorSuggestions.summary}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Key Skills to Highlight */}
+                  {tailorSuggestions.keySkillsToHighlight?.length > 0 && (
+                    <div>
+                      <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-3">
+                        ⭐ Key Skills to Highlight
+                      </h4>
+                      <div className="flex flex-wrap gap-2">
+                        {tailorSuggestions.keySkillsToHighlight.map((skill, idx) => (
+                          <span
+                            key={idx}
+                            className="px-4 py-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full text-sm font-medium border border-green-300 dark:border-green-700"
+                          >
+                            {skill}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Achievement Bullet Points */}
+                  {tailorSuggestions.bulletPoints?.length > 0 && (
+                    <div>
+                      <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-3">
+                        💼 Suggested Achievement Bullets
+                      </h4>
+                      <ul className="space-y-2">
+                        {tailorSuggestions.bulletPoints.map((bullet, idx) => (
+                          <li
+                            key={idx}
+                            className="flex gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600"
+                          >
+                            <span className="text-blue-600 dark:text-blue-400 font-bold flex-shrink-0">
+                              •
+                            </span>
+                            <span className="text-gray-700 dark:text-gray-300">{bullet}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Skill Gaps */}
+                  {tailorSuggestions.skillGaps?.length > 0 && (
+                    <div>
+                      <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-3">
+                        🎯 Skills to Develop
+                      </h4>
+                      <ul className="space-y-2">
+                        {tailorSuggestions.skillGaps.map((gap, idx) => (
+                          <li
+                            key={idx}
+                            className="flex items-center gap-2 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-700"
+                          >
+                            <span className="text-amber-600 dark:text-amber-400">→</span>
+                            <span className="text-gray-700 dark:text-gray-300">{gap}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Recommendations */}
+                  {tailorSuggestions.recommendations?.length > 0 && (
+                    <div>
+                      <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-3">
+                        💡 Recommendations
+                      </h4>
+                      <ul className="space-y-2">
+                        {tailorSuggestions.recommendations.map((rec, idx) => (
+                          <li
+                            key={idx}
+                            className="flex gap-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-700"
+                          >
+                            <span className="text-blue-600 dark:text-blue-400 font-bold">
+                              {idx + 1}.
+                            </span>
+                            <span className="text-gray-700 dark:text-gray-300">{rec}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Action Buttons */}
+                  <div className="flex gap-3 pt-4">
+                    <button
+                      onClick={() => {
+                        // Copy suggestions to clipboard or use in application
+                        const text = `
+Summary: ${tailorSuggestions.summary}
+
+Key Skills: ${tailorSuggestions.keySkillsToHighlight?.join(", ")}
+
+Suggested Bullets:
+${tailorSuggestions.bulletPoints?.map((b) => `• ${b}`).join("\n")}
+
+Recommendations:
+${tailorSuggestions.recommendations?.map((r) => `• ${r}`).join("\n")}
+`;
+                        navigator.clipboard.writeText(text);
+                        toast.success("Suggestions copied to clipboard!");
+                      }}
+                      className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition"
+                    >
+                      Copy Suggestions
+                    </button>
+                    <button
+                      onClick={() => handleApplyClick(tailorJob)}
+                      className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition flex items-center justify-center gap-2"
+                    >
+                      <Send size={16} />
+                      Apply Now
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-8 text-gray-600 dark:text-gray-400">
+                  Failed to generate suggestions. Please try again.
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* My Applications Modal */}
       {isAppsModalOpen && (

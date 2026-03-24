@@ -46,22 +46,36 @@ const AddBlog = () => {
     }
     setIsGenerating(true);
 
-    setTimeout(() => {
-      const aiMockContent = `
-        <h2>Introduction</h2>
-        <p>This is an AI-generated draft based on your title: <strong>${title}</strong>.</p>
-        <p>Here you can discuss the core concepts of ${category}...</p>
-        <h2>Key Takeaways</h2>
-        <ul>
-          <li>Point 1: Understanding the basics.</li>
-          <li>Point 2: Deep dive into the details.</li>
-        </ul>
-        <p><em>(Edit this text to finish your article)</em></p>
-      `;
-      quillRef.current.root.innerHTML = aiMockContent;
-      toast.success("Draft generated! You can now edit it.");
+    try {
+      // Format token with Bearer prefix if needed
+      const authHeader = token?.startsWith('Bearer ') ? token : `Bearer ${token}`;
+      
+      const { data } = await axios.post(
+        '/api/ai/blog/generate-content',
+        {
+          title,
+          subTitle,
+          category,
+          language,
+        },
+        {
+          headers: { Authorization: authHeader }
+        }
+      );
+
+      if (data?.success && data?.content) {
+        // Set the generated content in the Quill editor
+        quillRef.current.root.innerHTML = data.content;
+        toast.success("Blog content generated successfully! You can now edit it.");
+      } else {
+        toast.error(data?.message || 'Failed to generate content');
+      }
+    } catch (error) {
+      console.error('Content generation error:', error);
+      toast.error(error.response?.data?.message || 'Failed to generate blog content. Make sure Gemini API is configured and server is running.');
+    } finally {
       setIsGenerating(false);
-    }, 2000);
+    }
   };
 
   // Submit Blog
@@ -182,6 +196,7 @@ const AddBlog = () => {
                   Generate an AI image for your blog. Enter a title first for better results.
                 </p>
                 <ImageGenerator
+                  isEmbedded={true}
                   onImageGenerated={(fileObject) => {
                     setImage(fileObject);
                     setPreviewUrl(URL.createObjectURL(fileObject));
