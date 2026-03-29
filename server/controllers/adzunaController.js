@@ -1,5 +1,4 @@
 import axios from "axios";
-
 // Location to country code mapping
 const LOCATION_COUNTRY_MAP = {
   // India
