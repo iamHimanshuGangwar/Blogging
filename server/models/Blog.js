@@ -9,7 +9,5 @@ const blogSchema = new mongoose.Schema({
     language: { type: String, enum: ['en', 'hi'], default: 'en' },
     isPublished: { type: String, required: true }
 },{timestamps:true})
-
-
 const Model=mongoose.model("user",blogSchema,'aiBlogs')
 export default Model
