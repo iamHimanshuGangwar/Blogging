@@ -7,5 +7,4 @@ const commentSchema=new mongoose.Schema({
     isApproved:{type:Boolean,default:false}
 },{timestamps:true})
 const Comment=mongoose.model("comments",commentSchema)
-
 export default Comment
