@@ -17,7 +17,6 @@ import toast from "react-hot-toast";
 import { useAppContext } from "../context/AppContext";
 import { ResumeParser } from "../utils/EnhancedResumeParser";
 import ResumeJobMatcher from "../components/job-portal/ResumeJobMatcher";
-
 /**
  * Enhanced Resume Manager
  * Features:
