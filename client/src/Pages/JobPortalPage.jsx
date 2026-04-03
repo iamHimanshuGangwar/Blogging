@@ -31,7 +31,6 @@ import { GeminiAIService } from "../utils/GeminiAIService";
 const JobPortalPage = () => {
   const navigate = useNavigate();
   const { axios, user } = useAppContext();
-
   // State Management
   const [jobs, setJobs] = useState([]);
   const [filteredJobs, setFilteredJobs] = useState([]);
