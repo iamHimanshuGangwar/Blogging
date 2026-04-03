@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
+
 const Blog = () => {
   const { id } = useParams();
   const { axios, theme } = useAppContext();
