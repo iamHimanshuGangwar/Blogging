@@ -44,5 +44,4 @@ const useAtmosphereScroll = () => {
     };
   }, []);
 };
-
 export default useAtmosphereScroll;
