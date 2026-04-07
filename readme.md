@@ -17,7 +17,6 @@ AiBlog is a full-stack blogging and career platform that combines content creati
 - Admin-only routes for posting jobs and reviewing applications
 - File uploads stored under `server/uploads/` (resumes, tts, etc.)
 - Uses Axios with a centralized auth interceptor (AppContext)
-
 ---
 
 ## Tech Stack
