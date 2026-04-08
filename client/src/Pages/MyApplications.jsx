@@ -18,7 +18,6 @@ const MyApplications = () => {
   useEffect(() => {
     fetchApplications();
   }, []);
-
   const fetchApplications = async () => {
     try {
       setLoading(true);
