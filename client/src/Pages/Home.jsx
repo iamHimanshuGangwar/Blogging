@@ -18,7 +18,7 @@ const Home = () => {
       <div className="relative z-10">
       <Navbar />
       <Header />
-      
+    
       {/* Features Section */}
   
       {/* Blog List Section */}
